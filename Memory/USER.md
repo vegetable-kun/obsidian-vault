@@ -1,0 +1,1 @@
+/home/ecs-assist-user/.hermes/memories/USER.md
