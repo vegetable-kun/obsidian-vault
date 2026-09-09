@@ -1,9 +1,10 @@
 ---
 created: 2026-09-08
+updated: 2026-09-09
 type: learning
-tags: [AI, Agent, 学习路线]
+tags: [AI, Agent, 学习路线, B站, GitHub]
 aliases: [AI Agent 学习路径, Agent 开发学习]
-source: Hermes Agent + 社区资料整理
+source: B站教程 + didilili/ai-agents-from-zero
 status: in-progress
 start_date: 2026-09-08
 target_date: 2026-12-31
@@ -14,6 +15,24 @@ target_date: 2026-12-31
 ## 学习目标
 
 从零开始系统学习 AI Agent 开发，掌握从基础概念到生产部署的完整技能链，最终能独立构建多 Agent 协作系统。
+
+---
+
+## 🎬 B 站学习资源
+
+| 资源 | 链接 | 说明 |
+|---|---|---|
+| **【全748集】AI Agent开发零基础教程** | https://www.bilibili.com/video/BV1xwVr6FEh4/ | 2026最新版，包含所有干货 |
+| **AI Agent 智能体搭建教程** | https://search.bilibili.com/all?keyword=AI+Agent | 从入门到实战 |
+
+---
+
+## 📦 GitHub 开源教程
+
+| 仓库 | 链接 | Star | 说明 |
+|---|---|---|---|
+| **didilili/ai-agents-from-zero** | https://github.com/didilili/ai-agents-from-zero | ⭐ 2026最系统 | 完整学习路径 + 实战项目 + 面试题库 |
+| **在线阅读** | https://didilili.github.io/ai-agents-from-zero/#/ | | 在线文档 |
 
 ---
 
@@ -33,6 +52,7 @@ target_date: 2026-12-31
 | 主题 | 要点 |
 |---|---|
 | Transformer 架构 | Self-Attention、位置编码、KV Cache |
+| MoE（混合专家） | 稀疏激活、负载均衡 |
 | 主流模型 | GPT、Claude、Gemini、LLaMA、Qwen 系列差异 |
 | Prompt Engineering | Few-shot、Chain-of-Thought、ReAct、结构化输出 |
 | Tokenizer | BPE、SentencePiece、tiktoken 计算 |
@@ -78,7 +98,16 @@ response = client.chat.completions.create(
 | 文档解析 | Unstructured、Marker、MinerU |
 | 分块策略 | 递归分块、语义分块、滑动窗口 |
 
-### 2.3 框架对比
+### 2.3 低代码平台（B站教程重点）
+
+| 平台 | 用途 | 学习要点 |
+|---|---|---|
+| **Coze（扣子）** | 字节跳动出品 | 工作流、Agent、知识库、插件、Python 调用 |
+| **Dify** | 开源平台 | 工作流/Agent/知识库、多案例、Python 调用、本地化部署 |
+
+**实践**：用 Coze 搭建一个商户运营管家（行业调研 PPT、爆款视频复刻、营销海报）。
+
+### 2.4 开发框架对比
 
 | 框架 | 定位 | 适用场景 |
 |---|---|---|
@@ -102,7 +131,7 @@ response = client.chat.completions.create(
 | 短期记忆 | 对话上下文窗口 | 内置 |
 | 工作记忆 | 当前任务状态 | Session State |
 | 长期记忆 | 向量数据库 + 图数据库 | Mem0、Zep、Honcho |
-|  episodic 记忆 | 事件序列存储 | 自定义 |
+| Episodic 记忆 | 事件序列存储 | 自定义 |
 
 ### 3.2 规划与推理
 
@@ -144,46 +173,19 @@ response = client.chat.completions.create(
 
 ---
 
-## 第四阶段：工程化与进阶（4-6 周）
+## 第四阶段：企业级 RAG/Agent 项目实战（4-6 周）
 
-### 4.1 可观测性
+### 4.1 实战项目（来自 GitHub 教程）
 
-| 工具 | 用途 |
-|---|---|
-| LangSmith | LangChain 应用追踪 |
-| Langfuse | 开源 LLM 可观测性 |
-| OpenTelemetry | 分布式追踪 |
-| Weights & Biases | 实验追踪 |
+| 项目 | 技术栈 | 说明 |
+|---|---|---|
+| **掌柜智库** | LangGraph + MinerU + Qdrant + Elasticsearch + Neo4j | 多路召回 RAG 系统 |
+| **电商小二** | 意图解析 + 多源知识库 + 流式回复 | 智能客服系统 |
+| **电商问数** | MySQL + LangGraph + Qdrant + Elasticsearch + FastAPI | 自然语言问数 |
+| **深度研搜** | DeepAgents + 网络搜索 + RAGFlow + WebSocket | 多智能体研究系统 |
+| **市场罗盘** | 场景化任务拆解 + 进度管控 | 项目管理 Agent |
 
-### 4.2 评估体系
-
-| 维度 | 指标 |
-|---|---|
-| 任务完成率 | 端到端成功率 |
-| 效率 | Token 消耗、延迟、工具调用次数 |
-| 质量 | 输出准确性、完整性、格式合规 |
-| 安全 | 注入成功率、违规率 |
-
-### 4.3 部署架构
-
-```
-用户 → API Gateway → Agent Service → LLM Provider
-                ↓
-        ┌───────┴───────┐
-        ↓               ↓
-   Tool Services    Memory Store
-   (微服务)         (向量DB + 图DB)
-```
-
-| 组件 | 选型 |
-|---|---|
-| 服务框架 | FastAPI / LitServe |
-| 消息队列 | Redis / RabbitMQ |
-| 状态管理 | Redis / PostgreSQL |
-| 容器化 | Docker + Docker Compose |
-| 编排 | Kubernetes |
-
-### 4.4 MCP（Model Context Protocol）
+### 4.2 MCP（Model Context Protocol）
 
 | 概念 | 说明 |
 |---|---|
@@ -194,23 +196,63 @@ response = client.chat.completions.create(
 
 **实践**：用 Hermes Agent 接入 3 个 MCP 服务器（搜索、文件、数据库）。
 
----
+### 4.3 A2A（Agent-to-Agent）协议
 
-## 第五阶段：项目实战（持续）
-
-### 推荐项目
-
-| 项目 | 涉及技能 |
+| 概念 | 说明 |
 |---|---|
-| **个人 AI 助手** | 全栈：记忆 + 工具 + 多平台 + 安全 |
-| **代码审查 Agent** | Git 集成 + 静态分析 + 报告生成 |
-| **自动化新闻聚合** | 爬虫 + 摘要 + 分类 + 定时推送 |
-| **客服 Agent** | RAG + 工单系统 + 人工转接 |
-| **数据分析 Agent** | SQL 生成 + 可视化 + 洞察提取 |
+| 与 MCP 关系 | MCP 是工具协议，A2A 是 Agent 通信协议 |
+| 消息与认证 | 标准化消息格式、身份验证 |
+| 典型场景 | 跨 Agent 协作、任务分发 |
 
 ---
 
-## 学习资源
+## 第五阶段：大模型微调（3-4 周）
+
+| 主题 | 要点 |
+|---|---|
+| 数据格式 | Alpaca、ShareGPT |
+| 微调方法 | PEFT、LoRA、QLoRA、全参数微调 |
+| 训练框架 | DeepSpeed、Llama-Factory |
+| 部署推理 | vLLM、Ollama、Xinference |
+| 评估 | Loss 对比、业务场景评测 |
+
+**实践**：用 Llama-Factory 完成一个 LoRA 微调案例。
+
+---
+
+## 第六阶段：工程化与部署（2-3 周）
+
+### 6.1 容器化
+
+| 工具 | 用途 |
+|---|---|
+| Docker | 容器化部署 |
+| Docker Compose | 多服务编排 |
+| Kubernetes | 容器编排 |
+
+### 6.2 可观测性
+
+| 工具 | 用途 |
+|---|---|
+| LangSmith | LangChain 应用追踪 |
+| Langfuse | 开源 LLM 可观测性 |
+| OpenTelemetry | 分布式追踪 |
+| Weights & Biases | 实验追踪 |
+
+### 6.3 部署架构
+
+```
+用户 → API Gateway → Agent Service → LLM Provider
+                ↓
+        ┌───────┴───────┐
+        ↓               ↓
+   Tool Services    Memory Store
+   (微服务)         (向量DB + 图DB)
+```
+
+---
+
+## 学习资源汇总
 
 ### 文档
 
@@ -221,6 +263,8 @@ response = client.chat.completions.create(
 | LangGraph Docs | https://langchain-ai.github.io/langgraph/ |
 | Hermes Agent Docs | https://hermes-agent.nousresearch.com/docs |
 | Anthropic MCP | https://modelcontextprotocol.io/ |
+| Dify Docs | https://docs.dify.ai/ |
+| Coze Docs | https://www.coze.cn/docs |
 
 ### 课程
 
@@ -248,6 +292,9 @@ response = client.chat.completions.create(
 - [[RAG-系统设计]]
 - [[MCP-协议详解]]
 - [[LLM-安全攻防]]
+- [[LangGraph-实战]]
+- [[Coze-Dify-对比]]
+- [[大模型微调实践]]
 
 ---
 
@@ -255,10 +302,12 @@ response = client.chat.completions.create(
 
 > **核心理念**：Agent = LLM + 工具 + 记忆 + 规划 + 安全
 > 
-> **学习路径**：基础 → 工具链 → 核心能力 → 工程化 → 项目实战
+> **学习路径**：基础 → 工具链 → 核心能力 → 项目实战 → 微调 → 工程化
 > 
 > **关键原则**：先跑通再优化，先单 Agent 再多 Agent，先安全再开放。
+> 
+> **推荐资源**：B站 748 集教程 + GitHub didilili/ai-agents-from-zero
 
 ---
 
-*由 Hermes Agent 创建于 2026-09-08 · 状态：进行中*
+*由 Hermes Agent 创建于 2026-09-08 · 更新于 2026-09-09 · 状态：进行中*
