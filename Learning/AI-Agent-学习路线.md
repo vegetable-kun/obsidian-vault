@@ -27,6 +27,58 @@ target_date: 2026-12-31
 
 ---
 
+## 📊 学习进度
+
+| 阶段 | 计划 | 状态 |
+|---|---|---|
+| 基础构建 | W1-W3 | 🟡 进行中 |
+| RAG 系统 | W4-W6 | ⬜ 未开始 |
+| Agent 框架 | W7-W9 | ⬜ 未开始 |
+| 项目实战 | W10-W12 | ⬜ 未开始 |
+| 大模型微调 | W13-W14 | ⬜ 未开始 |
+| 工程化部署 | W15-W16 | ⬜ 未开始 |
+
+**总进度**：🟩⬜⬜⬜⬜⬜ 10%
+
+![[AI-Agent-学习时间安排]]
+
+---
+
+## 📅 学习甘特图
+
+```mermaid
+gantt
+    title AI Agent 学习路线（14 周）
+    dateFormat  YYYY-MM-DD
+    axisFormat  %m/%d
+    
+    section 基础构建
+    Python 进阶           :a1, 2026-09-08, 7d
+    LLM 基础              :a2, after a1, 7d
+    API 调用              :a3, after a2, 7d
+    
+    section RAG 系统
+    向量检索              :b1, after a3, 7d
+    完整 RAG              :b2, after b1, 7d
+    高级 RAG              :b3, after b2, 7d
+    
+    section Agent 框架
+    LangChain             :c1, after b3, 7d
+    LangGraph             :c2, after c1, 7d
+    CrewAI                :c3, after c2, 7d
+    
+    section 项目实战
+    智能客服              :d1, after c3, 7d
+    深度研搜              :d2, after d1, 7d
+    个人助手              :d3, after d2, 7d
+    
+    section 微调+工程化
+    大模型微调            :e1, after d3, 14d
+    工程化部署            :e2, after e1, 14d
+```
+
+---
+
 ## 🎬 [[B站学习资源]]
 
 | 资源 | 链接 | 说明 |
@@ -52,6 +104,23 @@ target_date: 2026-12-31
 
 > [!warning] 检验标准
 > 能不看文档写出一个带工具调用的对话 Agent
+
+### 完成情况
+
+- [ ] [[Python-进阶]]（W1：15h）
+  - [ ] [[类型系统]]
+  - [ ] [[异步编程]]
+  - [ ] [[设计模式]]
+  - [ ] [[函数式工具]]
+- [ ] [[LLM-基础]]（W1-W2：15h）
+  - [ ] [[Transformer-架构]]
+  - [ ] [[MoE-混合专家]]
+  - [ ] [[主流模型对比]]
+  - [ ] [[Prompt-Engineering]]
+  - [ ] [[Tokenizer]]
+- [ ] [[API-调用]]（W2：10h）
+  - [ ] [[OpenAI-SDK]]
+  - [ ] [[多-Provider-封装]]
 
 ---
 
@@ -127,8 +196,10 @@ target_date: 2026-12-31
 
 > [!success] 学习方法
 > 1. 先看 [[3Blue1Brown]] 的 Transformer 可视化视频
-> 2. 再读《Attention Is All You Need》论文前 3 节
+> 2. 再读《Attention Is All You Need》论文前 3 节[^1]
 > 3. 用 PyTorch 写一个简单的 Attention 层
+
+[^1]: Vaswani et al., "Attention Is All You Need", 2017. https://arxiv.org/abs/1706.03762
 
 #### 1.2.2 [[MoE-混合专家]]
 
@@ -255,6 +326,12 @@ class LLMRouter:
 
 > [!warning] 检验标准
 > 用 [[Hermes Agent]] 的文档搭一个能回答"我上次做了什么"的系统
+
+### 完成情况
+
+- [ ] [[向量检索基础]]（W4：15h）
+- [ ] [[完整-RAG-链路]]（W5：18h）
+- [ ] [[高级-RAG]]（W6：18h）
 
 ---
 
@@ -403,6 +480,12 @@ result = qa.invoke("Hermes Agent 怎么配置 cron？")
 
 > [!warning] 检验标准
 > 独立完成一个多 Agent 协作系统，写到简历上
+
+### 完成情况
+
+- [ ] [[LangChain-基础]]（W7：15h）
+- [ ] [[LangGraph-核心]]（W8：18h）
+- [ ] [[CrewAI-多-Agent]]（W9：18h）
 
 ---
 
@@ -557,6 +640,12 @@ result = crew.kickoff()
 > [!warning] 检验标准
 > 3 个项目都有 Demo 视频 + GitHub 仓库 + 技术博客
 
+### 完成情况
+
+- [ ] [[智能客服-Agent]]（W10：18h）
+- [ ] [[深度研搜-Agent]]（W11：18h）
+- [ ] [[个人-AI-助手]]（W12：18h）
+
 ---
 
 ### 4.1 [[智能客服-Agent]]（W10：18h）
@@ -611,6 +700,12 @@ result = crew.kickoff()
 > [!warning] 检验标准
 > 完成一个 LoRA 微调案例，对比微调前后效果
 
+### 完成情况
+
+- [ ] [[微调基础]]
+- [ ] [[训练框架]]
+- [ ] [[数据集构建]]
+
 ---
 
 ### 5.1 [[微调基础]]
@@ -651,6 +746,12 @@ result = crew.kickoff()
 > [!warning] 检验标准
 > 项目容器化部署，能答 80% 面试题
 
+### 完成情况
+
+- [ ] [[容器化]]
+- [ ] [[可观测性]]
+- [ ] [[部署架构]]
+
 ---
 
 ### 6.1 [[容器化]]
@@ -680,6 +781,62 @@ graph TD
     C --> F[Memory Store]
     E --> G[向量DB + 图DB]
 ```
+
+---
+
+## 📦 资源速查
+
+| 类型 | 名称 | 链接 | 费用 |
+|---|---|---|---|
+| 视频 | B站 748 集 | https://www.bilibili.com/video/BV1xwVr6FEh4/ | 免费 |
+| 教程 | ai-agents-from-zero | https://github.com/didilili/ai-agents-from-zero | 免费 |
+| 文档 | LangGraph | https://langchain-ai.github.io/langgraph/ | 免费 |
+| 文档 | CrewAI | https://docs.crewai.com/ | 免费 |
+| 工具 | Ollama | https://ollama.com/ | 免费 |
+| 工具 | OpenRouter | https://openrouter.ai/ | 免费额度 |
+| 付费 | DeepLearning.AI | https://www.deeplearning.ai/ | $40/月 |
+
+---
+
+## ❓ 常见问题
+
+> [!question] Q：Python 基础不好怎么办？
+> A：W1 额外补 1 周，重点补 [[asyncio]] 和 [[Pydantic]]。
+
+> [!question] Q：API Key 费用不够怎么办？
+> A：用 [[Ollama]] 本地模型 + 免费额度（[[OpenRouter]] 免费模型）。
+
+> [!question] Q：学完能找什么工作？
+> A：[[AI-应用开发工程师]]、[[AI-Agent-工程师]]、[[大模型应用开发]]。
+
+> [!question] Q：双非学历会被卡吗？
+> A：项目经验可以弥补，重点打造 2-3 个可展示项目。
+
+> [!question] Q：每天要学多久？
+> A：工作日 2 小时，周末 5-10 小时，每周 15-20 小时。
+
+---
+
+## ⚠️ 常见踩坑
+
+> [!failure] 坑 1：直接学框架，基础不牢
+> 后果：W7 学 [[LangGraph]] 时一脸懵
+> 解法：W1-W3 必须踏实学，不要跳
+> 
+> > [!tip] 检验标准
+> > 能不看文档写出一个带工具调用的 Agent
+
+> [!failure] 坑 2：只看视频不动手
+> 后果：看完就忘，W4 搭 RAG 时不会写代码
+> 解法：每个知识点都要有实践产出
+
+> [!failure] 坑 3：追求完美，一个项目做一个月
+> 后果：14 周只做了 1 个项目
+> 解法：先跑通再优化，MVP 优先
+
+> [!failure] 坑 4：忽视安全
+> 后果：项目上线后被 Prompt Injection 攻击
+> 解法：第三阶段就加入安全沙箱设计
 
 ---
 
@@ -737,7 +894,9 @@ graph TD
 ## 总结
 
 > [!success] 核心理念
-> Agent = ==LLM== + ==工具== + ==记忆== + ==规划== + ==安全==
+> Agent = ==LLM== + ==工具== + ==记忆== + ==规划== + ==安全==[^2]
+
+[^2]: 来源：[[ReAct-论文]]（2022）+ [[LangChain]] 官方文档
 
 > [!tip] 学习路径
 > 基础 → RAG → 框架 → 项目 → 微调 → 工程化
