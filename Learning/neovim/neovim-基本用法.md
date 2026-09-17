@@ -29,249 +29,86 @@ cssclasses:
 
 ---
 
-## 🚀 基本操作
+## 🎯 难度分段学习
 
-### 启动和退出
+| 难度 | 目标人群 | 学习建议 | 预估时长 |
+|---|---|---|---|
+| **入门** | 完全零基础、初次接触 Vim/Neovim | 重点掌握基本操作模式、光标移动、文本编辑，完成 5 个练习题 | 15h |
+| **进阶** | 有基础需求提高效率 | 重点掌握分割窗口、搜索替换、插件配置，自定义个人配置 | 20h |
+| **高级** | 需要进行深度自定义开发 | 重点掌握 Lua 配置、插件开发、性能优化，构建完整 IDE | 30h |
 
-```bash
-# 启动 Neovim
-nvim
+---
 
-# 打开指定文件
-nvim file.txt
+### 入门（Beginner）
 
-# 退出（未修改）
-:q
-
-# 退出并保存
-:wq
-
-# 强制退出（不保存）
-:q!
-```
-
-### 光标移动（正常模式）
-
-| 快捷键 | 说明 | 替代命令 |
+| 知识点 | 具体内容 | 练习 |
 |---|---|---|
-| `h` | 向左移动 | ← |
-| `j` | 向下移动 | ↓ |
-| `k` | 向上移动 | ↑ |
-| `l` | 向右移动 | → |
-| `0` | 移动到行首 | |
-| `$` | 移动到行尾 | |
-| `gg` | 移动到文件开头 | |
-| `G` | 移动到文件结尾 | |
-| `nG` | 移动到第 n 行 | `:n` |
+| 启动和退出 | `nvim`、`:q`、`:wq`、`:q!` | 练习 1：启动退出练习 |
+| 光标移动 | `h`, `j`, `k`, `l`、`0`, `$`, `gg`, `G` | 练习 2：移动练习 |
+| 文本编辑 | `i`, `a`, `o`, `x`, `dd`, `yy`, `p`, `u` | 练习 3：编辑练习 |
+| 分割窗口 | `:split`、`:vsplit`、`Ctrl+w + hjkl` | 练习 4：分割窗口练习 |
+| 搜索 | `/pattern`、`n`, `N`、`:noh` | 练习 5：搜索练习 |
+| 基本配置 | `vim.opt.number`、`vim.opt.tabstop` | 练习 6：配置练习 |
 
-### 文本编辑
+**入门项目**：完成 Neovim 启动、退出、基本编辑的全流程练习，不看帮助文档。
 
-| 快捷键 | 说明 | 示例 |
+---
+
+### 进阶（Intermediate）
+
+| 知识点 | 具体内容 | 练习 |
 |---|---|---|
-| `i` | 在光标前插入 | |
-| `a` | 在光标后插入 | |
-| `o` | 在下方新建一行 | |
-| `O` | 在上方新建一行 | |
-| `x` | 删除光标下的字符 | |
-| `dd` | 删除整行 | |
-| `yy` | 复制整行 | |
-| `p` | 粘贴 | |
-| `u` | 撤销 | |
-| `Ctrl+r` | 重做 | |
+| 替换 | `:s/old/new/g`、`:%s/old/new/gc` | 练习 7：替换练习 |
+| 可视模式 | `v`, `V`, `Ctrl+v`、`<`, `>` | 练习 8：可视模式练习 |
+| 插件管理 | `packer.nvim` 安装卸载 | 练习 9：插件安装 |
+| 常用插件 | `nvim-tree` (`:NvimTreeToggle`)、`telescope` (`:Telescope find_files`) | 练习 10：插件使用 |
+| 配置文件 | `init.lua` 基本结构、`leader` 键 | 练习 11：配置文件搭建 |
+| 常用选项 | `number`、`relativenumber`、`wrap` | 练习 12：选项配置 |
+
+**进阶项目**：配置个人 Neovim，安装 3 个常用插件（文件树、搜索、主题），并能流畅使用。
 
 ---
 
-## 🛠️ 分割窗口
+### 高级（Advanced）
 
-| 快捷键 | 说明 |
-|---|---|
-| `:split` | 水平分割窗口 |
-| `:vsplit` | 垂直分割窗口 |
-| `Ctrl+w + h` | 切换到左侧窗口 |
-| `Ctrl+w + j` | 切换到下方窗口 |
-| `Ctrl+w + k` | 切换到上方窗口 |
-| `Ctrl+w + l` | 切换到右侧窗口 |
-| `Ctrl+w + q` | 关闭当前窗口 |
-
----
-
-## ⚙️ 基本配置（`init.vim` 或 `init.lua`）
-
-### 最小配置示例
-
-```lua
--- Lua 配置 (推荐)
-vim.g.mapleader = " "
-
--- 基本设置
-vim.opt.number = true       -- 显示行号
-vim.opt.relativenativenumber = true  -- 相对行号
-vim.opt.tabstop = 4         -- Tab 显示为 4 个空格
-vim.opt.shiftwidth = 4      -- 自动缩进宽度
-vim.opt.expandtab = true    -- Tab 转换为空格
-vim.opt.autoindent = true   -- 自动缩进
-vim.opt.wrap = false        -- 不自动换行
-```
-
-### 常见插件
-
-| 插件 | 作用 | 安装 |
+| 知识点 | 具体内容 | 练习 |
 |---|---|---|
-| `nvim-tree` | 文件资源管理树 | `:NvimTreeToggle` |
-| `telescope` | 模糊查找器 | `:Telescope find_files` |
-| `lsp-zero` | LSP 支持 | `lsp.setup()` |
-| `which-key` | 快捷键提示 | `leader + k` |
+| Lua 配置 | `vim.g`、`vim.opt`、`mapleader`、`maplocalleader` | 练习 13：Lua 配置 |
+| 自定义映射 | `vim.keymap.set`、`nmap`、`vmap` | 练习 14：映射配置 |
+| 插件开发 | 插件目录结构、`lazy.nvim` 或 `packer.nvim` | 练习 15：开发小插件 |
+| 性能优化 | 懒加载、命令缓存 | 练习 16：性能分析 |
+| 颜色主题 | `colorscheme`、`vim.cmd` | 练习 17：主题配置 |
+| LSP 支持 | `lsp-zero`、`mason` | 练习 18：LSP 配置 |
 
-### 常用选项
-
-```lua
--- 启用鼠标支持
-vim.opt.mouse = "a"
-
--- 设置颜色主题
-vim.cmd("colorscheme desert")
-
--- 启用折行
-vim.opt.wrap = true
-
--- 设置最短背景
-vim.opt.shortmess:append("c")
-```
+**高级项目**：构建个人 Neovim IDE，包含：文件管理、模糊搜索、LSP 补全、自定义快捷键、主题配置，实现日常开发全流程。
 
 ---
 
-## 🔍 搜索和替换
+> [!tip] 学习路径建议
+> - **零基础**：先完成入门所有练习（约 15h），确保能流畅使用 Neovim 进行基本编辑
+> - **有一定经验**：重点突进进阶章节（约 20h），重点掌握插件配置和个人化设置
+> - **进阶用户**：挑选高级项目（约 30h），构建属于自己的 Neovim 工作流
 
-### 搜索
-
-```bash
-# 在正常模式下搜索
-/npattern    -- 搜索 "pattern"
-?pattern     -- 反向搜索
-
-# 高亮所有匹配
-:noh         -- 取消高亮
-:set hlsearch -- 开启高亮
-
-# 向下/向上搜索
-n            -- 下一个匹配
-N            -- 上一个匹配
-```
-
-### 替换
-
-```bash
-# 基本替换
-:%s/old/new/g  -- 全局替换 old 为 new
-
-# 确认模式替换
-:%s/old/new/gc -- 每次确认
-
-# 替换当前行
-:s/old/new/g   -- 当前行替换
-```
+> [!warning] 避坑指南
+> - **不要**一开始就深入 Lua 配置，务必先掌握基础操作
+> - **练习**要多使用快捷键，肌肉记忆是 Vim/Neovim 的核心
+> - **备份** `init.lua`/`init.vim`，避免配置错误导致无法启动
 
 ---
 
-## 📦 插件管理
+## 📚 进阶资源
 
-###使用 packer.nvim
-
-```lua
-return require('packer').startup(function()
-  -- Packer 可以管理自己
-  use 'wbthomason/packer.nvim'
-
-  -- 常用插件
-  use 'navaras/onedark.nvim'       -- 主题
-  use 'nvim-tree/nvim-tree.lua'    -- 文件树
-  use 'nvim-telescope/telescope.nvim' -- 搜索
-  use 'hrsh7th/nvim-cmp'           -- 自动补全
-end)
-```
-
-### 基本安装
-
-```bash
-# 安装 Packer
-git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
-# 启动并安装插件
-nvim +PackerInstall +qall
-```
+| 资源 | 链接 | 说明 |
+|---|---|---|
+| [[Neovim 高级配置]] | https://github.com/NvChad/NvChad | 完整 Neovim 发行版 |
+| [[Lua 学习路线]] | https://learnxinyminutes.com/docs/lua/ | Lua 语法速查 |
+| [[Vim 文字对象]] | https://vim.rtorr.com/ | 文字对象速查 |
+| [[Telescope 文档]] | https://github.com/nvim-telescope/telescope.nvim | 搜索插件文档 |
 
 ---
 
-## 💡 常用技巧
+> [!note] 关联笔记
+> - `[[Bash-基础语法]]` - Bash 基础语法
+> - `[[Lua-学习路线]]` - Lua 语言学习
 
-| 技巧 | 说明 |
-|---|---|
-| `:%!sort` | 对整个文件排序 |
-| `ggVG:<` | 视觉模式下缩进整个文件 |
-| `yiw` | 选中“单词” |
-| `va"` | 选中“引号内的内容” |
-| `gf` | 打开光标下的文件 |
-
----
-
-## ⚠️ 常见错误
-
-| 错误 | 解决方法 |
-|---|---|
-| `E492: Not an editor command: Q` | 退出请用 `:q`，`Q` 是错误命令 |
-| `E37: No write since last change` | 先 `:w` 保存，再 `:q` 退出 |
-| `cursor shape not available` | 可能需要 `set guicursor` 配置 |
-| 插件加载错误 | 确保 Packer 安装无误，重启 Neovim |
-
----
-
-## 📚 练习项目
-
-| 项目 | 描述 |
-|---|---|
-| **1. 个人配置文件** | 自定义 `init.lua`，配置常用快捷键和选项 |
-| **2. 代码片段库** | 创建自定义代码片段，常用函数/类模板 |
-| **3. 文件管理练习** | 使用 `nvim-tree` 完成文件的增删改查 |
-| **4. 搜索练习** | 使用 `telescope` 查找文档字符串或配置 |
-| **5. 替换练习** | 练习多行替换和正则替换 |
-
----
-
-## 🔗 相关资源
-
-- `[[Neovim-高级配置]]`
-- `[[Vim-键位映射]]`
-- `[[Lua-学习路线]]`
-- `[[IDE-对比]]`
-
----
-
-## ❓ 常见问题
-
-> [!question] Q：怎么退出 Neovim？
-> **A**：按 `Esc` 确保在正常模式，然后输入 `:q`（保存后）或 `:q!`（强制不保存）。
-
-> [!question] Q：怎么安装插件？
-> **A**：使用插件管理器 `packer.nvim`：`git clone` 对应仓库到 `~/.local/share/nvim/site/pack/packer/start/`，然后启动 Neovim 运行 `:PackerInstall`。
-
-> [!question] Q：怎么恢复误删的内容？
-> **A**：按 `u` 撤销，或 `Ctrl+r` 重做。
-
-> [!question] Q：如何水平分屏？
-> **A**：输入 `:split` 或使用快捷键 `Ctrl+w + s`。
-
----
-
-> [!faq] 常见问题汇总
-> **Q**：光标怎么变成竖线？
-> **A**：这是正常的 Neovim 光标形状，可以通过 `set guicursor` 自定义。
->
-> **Q**：Tab 键为什么不动？
-> **A**：检查是否开启了 `expandtab`，或冲突的插件快捷键。
->
-> **Q**：保存后为什么改动仍然可以撤销？
-> **A**：Neovim 默认开启持久撤销，需要配置 `undofile`。
-
----
-
-*由 [[Hermes Agent]] 创建于 2026-09-09 · 状态：进行中*
+*由 [[Hermes Agent]] 创建于 2026-09-09 · 更新于 2026-09-17 · 状态：进行中*
