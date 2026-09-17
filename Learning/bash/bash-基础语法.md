@@ -194,6 +194,17 @@ cssclasses:
 
 **综合项目**：编写 `welcome.sh` 脚本，接受姓名参数，输出带颜色的问候语，并判断参数是否提供。
 
+> [!tip] 常见陷阱
+> 1. **变量未引用**：使用 `echo $name` 而不是 `echo "$name"`，可能导致单词分割
+> 2. **单引号vs双引号混淆**：单引号不转换变量，双引号会转换；记住：变量用双引号
+> 3. **空格导致错误**：命令参数间的空格会被 Shell 解析，始终对含空格的变量使用双引号
+> 4. **`set -e` 误用**：在错误处理前使用 `set -e` 可能导致脚本意外退出，谨慎启用
+
+> [!note] 本章视频推荐
+> - **Bash 基础入门** (Bilibili): https://www.bilibili.com/video/BV1xwVr6FEh4/ - 全面覆盖 Bash 基础语法
+> - **Linux 命令行** (Coursera): https://www.coursera.com/learn/linux-command-line - 系统化的命令行学习
+> - **实战 Shell 脚本** (Udemy): https://www.udemy.com/course/shell-scripting/ - 侧重实际脚本编写
+
 ---
 
 ## 第二章 进阶（Intermediate）
@@ -317,6 +328,17 @@ cssclasses:
 
 **综合项目**：编写 `log-analyzer.sh` 脚本，接受日志文件路径参数，使用 `awk` 提取其中的 IP 地址和访问次数，并使用 `sed` 进行简单的文本清洗。
 
+> [!tip] 常见陷阱
+> 1. **awk 正则转义**：在 awk 中使用正则时，特殊字符如 `.` `*` 需要转义，否则含义改变
+> 2. **sed 模式空行**：`sed '/pattern/'` 会删除匹配行，注意是否想保留非匹配行
+> 3. **变量交互问题**：在 awk 中引用 Shell 变量，记得双引号扩展：`awk -v var="$var" '{print var}'`
+> 4. **输出重定向覆盖**：`>` 会覆盖原文件，如需追加请使用 `>>`
+
+> [!note] 本章视频推荐
+> - **Awk 与 Sed 实战** (Bilibili): https://www.bilibili.com/video/BV1ff4y1X7Ng/ - 深入讲解文本处理
+> - **Linux 性能工具** (Coursera): https://www.coursera.org/learn/linux-performance - 包含高级文本处理
+> - **Real World Shell Scripting** (Egghead): https://egghead.io/courses/the-command-line - 实战脚本编写
+
 ---
 
 ## 第三章 高级（Advanced）
@@ -412,6 +434,17 @@ cssclasses:
 4. 命名管道
 
 **综合项目**：编写 `system-check.sh` 脚本，收集系统信息（内存使用、磁盘空间、运行的进程数），将结果输出到 `/tmp/system-report.txt`，并使用 `nc` 检查本机 80 端口是否监听。
+
+> [!tip] 常见陷阱
+> 1. **进程快照过时**：`ps` 显示的是快照，进程状态可能在采集瞬间就已经变化，实时监控用 `top` 或 `htop`
+> 2. **磁盘使用率误区**：`df -h` 显示的已用空间可能包含预留块，实际可用空间更小
+> 3. `nc` 端口探测：`nc -zv` 的 `-z` 标志只检测端口是否开启，不测试服务是否可用
+> 4. 系统信息采集频率：过于频繁的采集可能影响系统性能，建议设置合理的采集间隔
+
+> [!note] 本章视频推荐
+> - **系统编程实战** (Bilibili): https://www.bilibili.com/video/BV1xxfs1xEBlu/ - 系统编程与进程控制
+> - **Linux 系统监控** (Coursera): https://www.coursera.org/learn/linux-monitoring - 系统性能监控与分析
+> - **Advanced Bash Scripting** (Udemy): https://www.udemy.com/course/advanced-bash-scripting/ - 高级 Shell 脚本编写
 
 ---
 

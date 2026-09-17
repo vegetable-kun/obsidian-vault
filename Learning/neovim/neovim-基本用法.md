@@ -213,6 +213,17 @@ Neovim 的核心设计理念是**模式编辑**——不同模式下相同的按
 
 **综合项目**：完成 Neovim 启动、打开文件、编辑文本、分割窗口、保存退出的全流程练习，不看帮助文档。
 
+> [!tip] 常见陷阱
+> 1. **模式遗忘**：频繁误按 `Esc` 导致从插入模式回正常模式，或反之；练习时先确认当前模式
+> 2. **引号不匹配**：输入模式下输入引号可能产生转义字符，正常模式下用 `r` 替单字符，`cw` 修改单词
+> 3. **窗口混淆**：`:split` 和 `:vsplit` 易混淆，记住：`split` 是水平，`vsplit` 是垂直
+> 4. **保存遗忘**：频繁使用 `:q!` 导致丢失修改，养成 `:` + `wq` 的肌肉记忆
+
+> [!note] 本章视频推荐
+> - **Neovim 入门** (Bilibili): https://www.bilibili.com/video/BV1xwVr6FEh4/ - 全面覆盖 Neovim 基础
+> - **Linux 命令行基础** (Coursera): https://www.coursera.org/learn/linux-command-line - 系统化的命令学习
+> - **实战 Neovim 配置** (Udemy): https://www.udemy.com/course/neovim-configuration/ - 侧重实际配置实践
+
 ---
 
 ## 📖 第二章 进阶（Intermediate）
@@ -421,6 +432,17 @@ require("lazy").setup({ ... })
 4. 行号
 
 **综合项目**：配置个人 Neovim，安装 3 个常用插件（文件树、搜索、主题），并能流畅使用。
+
+> [!tip] 常见陷阱
+> 1. **插件冲突**：安装过多插件可能导致 Neovim 启动变慢，建议使用懒加载，只在需要时加载
+> 2. **映射冲突**：新增键位可能覆盖现有快捷键，使用 `:WhichKey` 检测冲突
+> 3. **配置错误启动**：语法错误会导致 Neovim 无法启动，始终保留备份 `init.lua.bak`
+> 4. **插件版本过旧**：插件频繁更新，可能与 Neovim 版本不兼容，定期检查更新日志
+
+> [!note] 本章视频推荐
+> - **Neovim 插件实战** (Bilibili): https://www.bilibili.com/video/BV1ff4y1X7Ng/ - 深入讲解插件使用
+> - **Lua 语言速成** (Coursera): https://www.coursera.org/learn/lua-programming - 快速掌握 Lua 基础
+> - **Neovim 配置管理** (Egghead): https://egghead.io/courses/neovim-configuration - 配置最佳实践
 
 ---
 
@@ -647,6 +669,17 @@ vim.g.loaded_netrw = 1
 4. 定义
 
 **综合项目**：构建个人 Neovim IDE，包含：文件管理、模糊搜索、LSP 补全、自定义快捷键、主题配置，实现日常开发全流程。
+
+> [!tip] 常见陷阱
+> 1. **Lua 语法错误**：单个引号与双引号混淆，table 语法错误（缺少逗号或方括号）会导致 Neovim 启动失败，使用 `:lua` 命令测试片段
+> 2. **LSP 连接超时**：语言服务器启动慢或网络不稳定，可通过 `lsp.configure({timeout_ms=5000})` 调整超时时间
+> 3. **性能回归**：添加过多自动命令或插件会显著拖慢 Neovim 启动，使用 `:Lazy profile` 分析启动耗时
+> 4. **主题兼容性**：并非所有主题都与 `true color` 兼容，确保终端支持 `24-bit color`（`$TERM=xterm-24bit`）
+
+> [!note] 本章视频推荐
+> - **Neovim 高级配置** (Bilibili): https://www.bilibili.com/video/BV1xxfs1xEBlu/ - 系统编程与进程控制
+> - **Lua 编程实战** (Coursera): https://www.coursera.org/learn/lua-programming - 系统化的 Lua 学习
+> - **Neovim 性能调优** (Udemy): https://www.udemy.com/course/neovim-performance/ - 启动速度与资源使用优化
 
 ---
 
