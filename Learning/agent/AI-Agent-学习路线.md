@@ -1,6 +1,6 @@
 ---
 created: 2026-09-08
-updated: 2026-09-09
+updated: 2026-09-25
 type: learning
 tags:
   - AI/Agent
@@ -48,7 +48,7 @@ target_date: 2026-12-31
 
 ```mermaid
 gantt
-    title AI Agent 学习路线（14 周）
+    title AI Agent 学习路线（16 周 / 112 天）
     dateFormat  YYYY-MM-DD
     axisFormat  %m/%d
     
@@ -83,8 +83,8 @@ gantt
 
 | 资源 | 链接 | 说明 |
 |---|---|---|
-| **【全748集】AI Agent开发零基础教程** | https://www.bilibili.com/video/BV1xwVr6FEh4/ | 2026最新版，包含所有干货 |
-| **AI Agent 智能体搭建教程** | https://search.bilibili.com/all?keyword=AI+Agent | 从入门到实战 |
+| **AI Agent 开发零基础教程** | https://www.bilibili.com/video/BV1xwVr6FEh4/ | 标题自称「全748集」，但 B站 API 实测仅 ==94 个分P==（2026-09-25 核验）。标题是营销话术，别按 748 集做计划 |
+| **AI Agent 智能体搭建（检索入口）** | https://search.bilibili.com/all?keyword=AI+Agent | 站内搜索入口，不锁定 UP 主（此类合集质量波动大） |
 
 ---
 
@@ -92,7 +92,7 @@ gantt
 
 | 仓库 | 链接 | Star | 说明 |
 |---|---|---|---|
-| **didilili/ai-agents-from-zero** | https://github.com/didilili/ai-agents-from-zero | ⭐ 2026最系统 | 完整学习路径 + 实战项目 + 面试题库 |
+| **didilili/ai-agents-from-zero** | https://github.com/didilili/ai-agents-from-zero | ⭐ 4.9k（2026-09-25 实测） | 完整学习路径 + 实战项目 + 面试题库；最近提交 2026-09-10，Python，仍在维护 |
 | **在线阅读** | https://didilili.github.io/ai-agents-from-zero/#/ | | 在线文档 |
 
 ---
@@ -489,6 +489,86 @@ result = qa.invoke("Hermes Agent 怎么配置 cron？")
 
 ---
 
+### 3.0 [[Agent-架构模式]]（W7 前置 · 2h · 必做）
+
+> [!warning] 为什么放在框架之前
+> 多数自称「Agent」的项目其实是 ==Workflow==。不先分清两者区别，学框架就会变成「为了用 LangGraph 而用 LangGraph」。
+
+#### 3.0.1 [[Workflow-vs-Agent]]
+
+| 维度 | Workflow（工作流） | Agent（智能体） |
+|---|---|---|
+| 控制权 | 路径由 ==代码预定义== | 模型 ==动态决定== 下一步 |
+| 成本与延迟 | 低且可预测 | 高且波动大 |
+| 错误行为 | 路径固定，出错易定位 | 早期判断偏差会 ==向后累积== |
+| 适用场景 | 步骤明确、路径可预测 | 开放式、连步数都不可预测 |
+| 停止条件 | 由代码决定 | 必须显式设置上限与人工检查点 |
+
+> [!tip] 选型铁律
+> 能用单次 LLM 调用解决的就别上 Workflow；能用 Workflow 解决的就别上 Agent。复杂度要用 ==可测量的收益== 来换。
+
+```mermaid
+graph TD
+    A[任务来了] --> B{一次 LLM 调用能解决?}
+    B -->|能| C[停止：单次调用 + RAG + 示例]
+    B -->|不能| D{能拆成固定几步?}
+    D -->|能| E[Prompt Chaining + 代码关卡]
+    D -->|不能| F{输入有明确类别?}
+    F -->|有| G[Routing 分流]
+    F -->|没有| H{子任务独立或需多视角?}
+    H -->|是| I[Parallelization]
+    H -->|否| J{子任务数量不可预测?}
+    J -->|是| K[Orchestrator-Workers]
+    J -->|否| L{有清晰评价标准且迭代有效?}
+    L -->|是| M[Evaluator-Optimizer]
+    L -->|否| N[真正的 Agent + 沙箱 + 停止条件]
+    class C,N internal-link;
+```
+
+#### 3.0.2 五种 [[Workflow-模式]]
+
+| 模式 | 做法 | 适用场景 | 本路线对应项目 |
+|---|---|---|---|
+| **Prompt Chaining** | 拆成顺序子任务，上一步输出喂下一步；中间可加代码「关卡」校验 | 任务能干净拆成固定步骤 | [[深度研搜-Agent]] 的「检索→清洗→成稿」 |
+| **Routing** | 先分类，再分发到专门的提示词/模型分支 | 输入类别差异大；可用小模型分流省钱 | [[智能客服-Agent]] 的意图识别 |
+| **Parallelization** | ① Sectioning：独立子任务并行后聚合<br>② Voting：同一任务多视角跑再投票 | 子任务互不依赖；或需要多视角提高置信度 | 研搜 Agent 的多源并行检索 + 交叉验证 |
+| **Orchestrator-Workers** | 中枢 LLM 动态拆任务、派给 worker、汇总结果 | 子任务的数量与内容事先无法预测 | [[深度研搜-Agent]] 的主 Agent 调度 |
+| **Evaluator-Optimizer** | 一个生成、一个评估反馈，循环打磨 | 有明确评价标准，且迭代确实能提升质量 | 「写代码 → 跑测试 → 修错」循环 |
+
+#### 3.0.3 [[ACI-工具设计]]（最被低估的部分）
+
+> [!tip] 核心观点
+> Agent 本质是「一个 LLM 在循环里根据反馈选工具」。因此 ==工具文档的质量比提示词的质量更重要==。工具的命名、描述、参数、错误信息，要像设计 UI 一样打磨。
+
+| 实践 | 做法 | 反面例子 |
+|---|---|---|
+| 命名 | 与人类工程师的叫法一致 | `exec_op_01` |
+| 描述 | 用自然语言写清**何时该用、何时不该用** | 只给一句「执行操作」 |
+| 参数 | 用与模型日常语料相近的格式（Markdown / diff 优于数字行号） | 让模型数几千行行号、做字符串转义 |
+| 示例 | 至少给 1 个正常 + 1 个边界用例 | 无示例 |
+| 错误信息 | 写清「下一步该怎么做」，可操作 | 只回 `failed` |
+| 去重 | 合并功能几乎相同的工具 | 同时提供 `read_file` 和 `cat_file` |
+| 防呆 | 通过参数设计让模型难以犯错 | 布尔开关满天飞 |
+
+> [!note] 本节权威资料（2026-09-25 核验 200）
+> - Anthropic《Building Effective Agents》：https://www.anthropic.com/engineering/building-effective-agents
+> - Anthropic《Writing Tools for Agents》：https://www.anthropic.com/engineering/writing-tools-for-agents
+
+**填空题**
+
+1. Workflow 与 Agent 的分界线在于：路径由 ==代码预定义==，还是由 ==模型动态决定==。
+2. 五个 Workflow 模式中，「先分类再分发到专门分支」的是 ______；「中枢动态拆任务并派发」的是 ______。
+3. Parallelization 的两种变体是 ______（独立子任务并行后聚合）与 ______（同一任务多视角再投票）。
+4. Agent 的错误会 ==向后累积==，因此生产环境必须配 ______ 环境与人工检查点。
+
+**答案**：
+1. 代码预定义, 模型动态决定
+2. Routing, Orchestrator-Workers
+3. Sectioning, Voting
+4. 沙箱
+
+---
+
 ### 3.1 [[LangChain-基础]]（W7：15h）
 
 #### 3.1.1 [[核心组件]]
@@ -751,6 +831,7 @@ result = crew.kickoff()
 - [ ] [[容器化]]
 - [ ] [[可观测性]]
 - [ ] [[部署架构]]
+- [ ] [[评估闭环]]（W16：8h）· 无评估就没有迭代
 
 ---
 
@@ -782,6 +863,27 @@ graph TD
     E --> G[向量DB + 图DB]
 ```
 
+### 6.4 [[评估闭环]]（W16：8h · 求职面试高频）
+
+> [!warning] 为什么必须单独成一节
+> 没有评估集，所有「优化」都是自我感觉。面试官问「你怎么知道改动有效」，答不上来直接掉分。
+
+| 层级 | 评什么 | 典型做法 |
+|---|---|---|
+| **组件级** | 单次调用质量 | 固定测试集跑 100 条，比对改前改后 |
+| **轨迹级** | Agent 走了哪些步骤 | 记录 tool_calls 序列、步数、是否走死循环 |
+| **结果级** | 任务是否真的完成 | 规则校验（JSON schema、是否含答案）+ 人工抽检 |
+| **成本级** | token / 延迟 / 费用 | 每任务的 token 数、P50/P95 延迟 |
+
+| 工具 | 用途 | 链接（2026-09-25 核验） |
+|---|---|---|
+| [[RAGAS]] | RAG 指标：faithfulness / answer relevance / context recall | https://github.com/explodinggradients/ragas |
+| [[LangSmith]] | 追踪 + 评估 + 数据集管理 | https://docs.langchain.com/langsmith/evaluation |
+| [[Langfuse]] | 开源可观测 + 评估 | https://langfuse.com/ |
+| [[DeepEval]] | pytest 风格的 LLM 单元测试 | https://github.com/confident-ai/deepeval |
+
+**综合项目**：给你的智能客服 Agent 建一个 ==50 条评估集==（含 10 条故意刁钻的问题），跑出基线分数，然后故意改坏 prompt 再跑一次，用数字证明改动是负向的。这份「用数据证明改动好坏」的截图就是简历素材。
+
 ---
 
 ## 📦 资源速查
@@ -794,7 +896,10 @@ graph TD
 | 文档 | CrewAI | https://docs.crewai.com/ | 免费 |
 | 工具 | Ollama | https://ollama.com/ | 免费 |
 | 工具 | OpenRouter | https://openrouter.ai/ | 免费额度 |
-| 付费 | DeepLearning.AI | https://www.deeplearning.ai/ | $40/月 |
+| 官方 | Building Effective Agents | https://www.anthropic.com/engineering/building-effective-agents | 免费 |
+| 官方 | Writing Tools for Agents | https://www.anthropic.com/engineering/writing-tools-for-agents | 免费 |
+| 规范 | A2A 协议（Agent 间互操作） | https://a2a-protocol.org/ | 免费 |
+| 付费 | DeepLearning.AI | https://www.deeplearning.ai/ | 订阅制 |
 
 ---
 
@@ -831,12 +936,21 @@ graph TD
 > 解法：每个知识点都要有实践产出
 
 > [!failure] 坑 3：追求完美，一个项目做一个月
-> 后果：14 周只做了 1 个项目
+> 后果：16 周只做了 1 个项目
 > 解法：先跑通再优化，MVP 优先
 
 > [!failure] 坑 4：忽视安全
 > 后果：项目上线后被 Prompt Injection 攻击
 > 解法：第三阶段就加入安全沙箱设计
+
+> [!failure] 坑 5：把 Workflow 当 Agent 硬上框架
+> 后果：成本翻倍、延迟变高、调试地狱，还被面试官追问「为什么不用 chaining」
+> 解法：先做 3.0 的选型决策树，==能用固定流程解决就不要上 Agent==；
+> 真要上 Agent，先把工具描述（ACI）打磨好，再调提示词
+
+> [!failure] 坑 6：没有评估集就宣称「效果不错」
+> 后果：所有优化无法证明，简历写不出数据
+> 解法：W16 建 50 条评估集，改动前后都跑一遍，用数字说话
 
 ---
 

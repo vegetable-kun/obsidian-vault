@@ -50,26 +50,35 @@ Client                          Server
    |         ESTABLISHED            |
 ```
 
-**四次挥手图示**
+**四次挥手图示**（注意状态归属：==`CLOSE_WAIT` 是被动方的状态，`TIME_WAIT` 是主动方的状态==）
 
+```mermaid
+sequenceDiagram
+    participant C as 客户端（主动关闭）
+    participant S as 服务端（被动关闭）
+    C->>S: FIN(seq=u) 客户端无数据可发
+    Note over C: 进入 FIN_WAIT_1
+    S-->>C: ACK(ack=u+1)
+    Note over C: 进入 FIN_WAIT_2
+    Note over S: 进入 CLOSE_WAIT（等应用 close）
+    S->>C: FIN(seq=v) 应用也发完了
+    Note over S: 进入 LAST_ACK
+    C-->>S: ACK(ack=v+1)
+    Note over S: 收到 ACK → CLOSED
+    Note over C: 进入 TIME_WAIT，等 2MSL → CLOSED
 ```
-Client                          Server
-   |                               |
-   |---------- FINseq=u ---------->| → CLOSE_WAIT
-   |<--------- ACKack=u+1 --------|
-   |        FIN_WAIT_2             |
-   |<--------- FINseq=v ----------| → LAST_ACK
-   |---------- ACKack=v+1 ------->| → TIME_WAIT → CLOSED
-```
+
+> [!danger] 上一版这张图画错了
+> 原图把 `CLOSE_WAIT` 标在「客户端发 FIN」那一行右侧，把 `TIME_WAIT` 标在服务端一侧 —— ==状态归属全反了==。记忆法：**`CLOSE_WAIT` 永远是被动方，`TIME_WAIT` 永远是主动方**。
 
 > [!tip] 关键理解
 > TCP 是双全工（full-duplex），连接的关闭可以是半关闭（一侧发送 FIN，另一侧仍可发送数据）。`TIME_WAIT` 与 `CLOSE_WAIT` 是排查连接堆积的常见状态。
 
-**填空题（每章 4.2 道，答案见章节末尾）**
+**填空题（每章 4 道，答案见本节末尾）**
 
 1. TCP 建立连接需要 ______ 次握手，分别交换 ______ 和 ______。
 2. TCP 终止连接需要 ______ 次挥手，因为连接是 ______ 的。
-3. `TIME_WAIT` 状态通常出现在 ______ 一侧，用于防止 ______。
+3. `TIME_WAIT` 状态只出现在 ==主动关闭方==，两个作用是：等对方重传的 FIN，以及防止旧报文干扰新连接。
 4. `CLOSE_WAIT` 表示 ______ 已收到 FIN 并发 ACK，但 ______ 未发 FIN。
 
 **答案**：
@@ -94,7 +103,7 @@ Client                          Server
 | FIN_WAIT_2 | 主动方收到 ACK，等待对方 FIN | 对方尚未发 FIN |
 | CLOSE_WAIT | 被动方收到 FIN 并发 ACK，等待本地关闭 | 被动方未及时关闭 |
 | LAST_ACK | 被动方发 FIN，等待 ACK | 被动方即将关闭 |
-| TIME_WAIT | 主动关闭方收到 ACK 后等待 2MSL | 防止旧报文干扰、确保 ACK 到达 |
+| TIME_WAIT | ==主动方收到对方的 FIN、回发 ACK 之后==，等待 2MSL | 防止旧报文干扰新连接；兜住对方重传的 FIN |
 
 > [!warning] 注意
 > `CLOSE_WAIT` 堆积通常是应用层问题（未及时关闭套接字/连接），而 `TIME_WAIT` 堆积是正常的高频短连接行为，除非端口耗尽或 MSL 设置不当。
@@ -104,7 +113,7 @@ Client                          Server
 1. 客户端发起连接后，发送 SYN 并等待 ACK 的状态是 ______。
 2. 服务器收到 SYN 后，发回 SYN-ACK 进入的状态是 ______。
 3. `ESTABLISHED` 状态表示连接已建立，可以进行 ______ 传输。
-4. 主动关闭方在收到对方 ACK 后，进入 ______ 状态，等待 2MSL。
+4. 主动关闭方是 ==收到对方的 FIN 并回发 ACK 之后== 才进入 ______ 状态，等待 2MSL。
 
 **答案**：
 1. SYN_SENT
@@ -144,9 +153,47 @@ Client                          Server
 
 ---
 
-### 1.4 第一章综合练习
+### 1.4 TCP 报文头与 MSS 协商
 
-**填空题（本章共 4.2 道，答案见下方）**
+**知识点详解**
+
+| 字段 | 长度 | 作用 |
+|---|---|---|
+| 源/目的端口 | 各 2 字节 | 标识进程（套接字） |
+| 序列号 Seq | 4 字节 | ==按字节计数==，不是按报文计数 |
+| 确认号 Ack | 4 字节 | 期望收到的下一个字节序号 |
+| 头部长度 | 4 bit | 以 32 字节为单位，5 → 20 字节最小头 |
+| 标志位 | 1 字节 | `URG ACK PSH RST SYN FIN` + NS |
+| 窗口 | 2 字节 | 接收窗口 rwnd（==未启用窗口缩放时最大 65535==） |
+| 校验和 | 2 字节 | 覆盖伪首部 + TCP 头 + 数据 |
+| 紧急指针 | 2 字节 | 配合 URG 使用（现代应用基本不用） |
+
+> [!tip] 为什么需要 MSS 协商
+> IP 分片是糟糕的设计（丢一片全包作废，且中间设备可能禁分片）。所以在**三次握手阶段**双方各自通告 `MSS` 选项，取较小值作为该连接的 MSS，避免 IP 分片。以太网 MTU 1500 时 MSS 通常为 ==1460==（1500 − 20 IP 头 − 20 TCP 头）。
+
+```bash
+# 观察 MSS 协商
+tcpdump -i any -n 'tcp[tcpflags] & tcp-syn != 0' -vv
+```
+
+**填空题**
+
+1. TCP 的序列号是按 ==字节== 计数，而不是按报文计数。
+2. 以太网 MTU 1500 时，协商出的 MSS 通常是 ______ 字节。
+3. TCP 头最小长度是 ______ 字节。
+4. 接收窗口字段在没有窗口缩放选项时最大为 ______。
+
+**答案**：
+1. 字节
+2. 1460
+3. 20
+4. 65535
+
+---
+
+### 1.5 第一章综合练习
+
+**填空题（本章共 4 道，答案见下方）**
 
 1. TCP 建立连接需要 ______ 次握手，交换的标志分别是 ______ 和 ______。
 2. `CLOSE_WAIT` 状态表示被动方已收到 FIN 并发 ACK，但 ______ 未发 FIN。
@@ -169,10 +216,12 @@ Client                          Server
 > 3. **忽略序列号的字节语义**：序列号是按字节递增的，不是按报文计数的。
 > 4. **零窗口忽略**：零窗口时发送方会发送窗口探测，防止死锁。
 
-> [!note] 本章视频推荐
-> - **TCP 连接建立与终止** (Bilibili): https://www.bilibili.com/video/BV1xxfs1xEBlu/ - 详细讲解三次握手、四次挥手与状态机
-> - **TCP 状态机详解** (Coursera): https://www.coursera.org/learn/computer-networking - 状态转换图与实际场景
-> - **TCP 滑动窗口原理** (Udemy): https://www.udemy.com/course/tcp-windowing/ - 窗口与流控制基础
+> [!note] 本章权威资料（链接于 2026-09-25 核验 200）
+> - **RFC 9293**（TCP 规范，取代 RFC 793）：https://www.rfc-editor.org/rfc/rfc9293
+> - **Linux `tcp(7)` 手册**（socket 选项与内核参数）：https://man7.org/linux/man-pages/man7/tcp.7.html
+>
+> > [!warning] 原视频链接已删除
+> > 原 `BV1xxfs1xEBlu` 是**编造的 BV 号**（同一假号在多篇笔记里被反复当作不同主题的视频），Coursera / Udemy 路径同样无法确认对应课程。==协议问题请直接查 RFC 9293==。
 
 ---
 
@@ -261,7 +310,7 @@ Client                          Server
 
 ### 2.4 第二章综合练习
 
-**填空题（本章共 4.2 道，答案见下方）**
+**填空题（本章共 4 道，答案见下方）**
 
 1. 拥塞控制中，cwnd 从小值指数增长的阶段是 ______。
 2. 达到阈值后，cwnd 转为 ______ 增长。
@@ -289,10 +338,13 @@ Client                          Server
 > 3. **慢启动理解片面**：慢启动不是“慢速连接”，而是“从小窗口指数增长以探测网络”。
 > 4. **状态堆积误判**：TIME_WAIT 堆积不一定是故障，CLOSE_WAIT 堆积往往是应用问题。
 
-> [!note] 本章视频推荐
-> - **TCP 拥塞控制详解** (Bilibili): https://www.bilibili.com/video/BV1xxfs1xEBlu/ - 慢启动、拥塞避免、快重传/恢复
-> - **TCP 流量控制与窗口** (Coursera): https://www.coursera.org/learn/computer-networking - 接收窗口与滑动窗口交互
-> - **TCP 状态与排查** (Udemy): https://www.udemy.com/course/tcp-troubleshooting/ - TIME_WAIT/CLOSE_WAIT 分析
+> [!note] 本章权威资料（链接于 2026-09-25 核验 200）
+> - **RFC 5681**（拥塞控制需求与算法总览）：https://www.rfc-editor.org/rfc/rfc5681
+> - **RFC 6298**（RTO 计算，RFC 2988 已废弃）：https://www.rfc-editor.org/rfc/rfc6298
+> - **RFC 2018**（SACK 选择确认）：https://www.rfc-editor.org/rfc/rfc2018
+> - **Linux `tcp(7)`**：https://man7.org/linux/man-pages/man7/tcp.7.html
+>
+> > [!warning] 原视频链接已删除（同上，`BV1xxfs1xEBlu` 为编造号）
 
 ---
 
@@ -386,9 +438,72 @@ Client                          Server
 
 ---
 
-### 3.4 第三章综合练习
+### 3.4 现代 TCP 的扩展机制
 
-**填空题（本章共 4.2 道，答案见下方）**
+| 机制 | 解决什么 | RFC | 备注 |
+|---|---|---|---|
+| **窗口缩放（Window Scale）** | 64KB 窗口在高 BDP 链路上不够 | RFC 7323 | 三次握手协商，左移位数；高带宽×长肥管道必需 |
+| **SACK（选择确认）** | 多包丢失时不必全部重传 | RFC 2018 | 发送方能知道**具体丢了哪些块** |
+| **ECN** | 拥塞发生在缓冲区溢出前 | RFC 7414 | 路由器打标而非丢包，靠 L4S/DSCP 使用 |
+| **校验和可省略** | 减少隧道/硬件卸载场景开销 | RFC 6928 | 仅在确认链路层可靠时允许省略 |
+| **Keep-Alive** | 发现死连接 | — | 默认 2 小时太长，实践常调到 30-60s |
+
+> [!tip] 高频面试题：为什么 BDP 大的链路上必须开窗口缩放？
+> `BDP = 带宽 × RTT`。10 Gbps × 100ms = 125 MB，==远大于 64KB 的 16 位窗口==，发送方会被窗口卡死。窗口缩放把窗口扩展到 32 位（最大 1 GB）才能跑满链路。
+
+**填空题**
+
+1. 窗口缩放选项由 ______ 规范定义，用于突破 64KB 窗口上限。
+2. SACK 让发送方知道具体丢失了哪些 ______。
+3. ECN 的作用是让路由器在缓冲区溢出前给报文 ______ 标记。
+4. 扩展协商一般在哪个阶段完成？==三次握手==。
+
+**答案**：
+1. RFC 7323
+2. 块（数据段）
+3. 拥塞
+4. 三次握手
+
+---
+
+### 3.5 Socket 选项与内核调参
+
+| 选项 | 作用 | 何时用 |
+|---|---|---|
+| `SO_REUSEADDR` | 允许绑定处于 TIME_WAIT 的端口 | 服务重启必开 |
+| `TCP_NODELAY` | 关闭 Nagle，小包立即发 | ==交互式/低延迟场景==（Redis 等默认开） |
+| `SO_KEEPALIVE` | 启用 TCP keep-alive | 长连接保活（需配内核间隔，见下） |
+| `TCP_USER_TIMEOUT` | 未确认数据的最长存活时间 | 防止半开连接卡死业务 |
+
+```bash
+# 系统层看与调（容器内 2GB 机器同样适用）
+sysctl net.ipv4.tcp_congestion_control   # 拥塞算法：cubic / bbr
+sysctl net.ipv4.tcp_tw_reuse             # 是否允许 TIME_WAIT 端口复用
+cat /proc/sys/net/ipv4/ip_local_port_range  # 临时端口范围，影响连接上限
+ss -s                                        # 连接状态总览
+```
+
+> [!warning] 调参前的三思
+> `tcp_fin_timeout` 控制的是 `FIN_WAIT_2` 超时，==**不是** TIME_WAIT==（这是最常见的误解）。缩短 TIME_WAIT 属于违背协议语义的行为，优先从**连接复用**和**减少短连接**入手。
+
+**填空题**
+
+1. 服务重启时绑定报 `Address already in use`，应查 `SO_______`。
+2. 关闭 Nagle 算法、改善交互式响应延迟的 socket 选项是 `TCP_______`。
+3. 查看系统拥塞控制算法的命令是 `sysctl net.ipv4.tcp_______`。
+4. `tcp_fin_timeout` 控制的其实是 `FIN_WAIT_2`，==不是== `TIME_WAIT`。
+
+**答案**：
+1. REUSEADDR
+2. NODELAY
+3. congestion_control
+4. 不是 TIME_WAIT
+
+---
+
+### 3.6 第三章综合练习
+
+**填空题（本章共 4 道，答案见下方）**
 
 1. 为了减少小包发送次数可能使用 ______ 算法，禁用该合并的选项是 ______。
 2. TCP 性能分析的关键指标包括 ______、______、______。
@@ -417,10 +532,14 @@ Client                          Server
 > 3. **Nagle 误认为“总是好”**：Nagle 合并小包减少开销，但也可能增加时延；交互式场景常禁用。
 > 4. **性能只有带宽一种指标**：还受 RTT、丢包率、窗口大小、算法策略影响。
 
-> [!note] 本章视频推荐
-> - **TCP 性能与拥塞算法** (Bilibili): https://www.bilibili.com/video/BV1xxfs1xEBlu/ - 拥塞控制、重传、性能指标讲解
-> - **Wireshark TCP 分析** (Coursera): https://www.coursera.org/learn/network-analysis - TCP 流分析与过滤技巧
-> - **TCP 抓包实战** (Udemy): https://www.udemy.com/course/tcp-packet-analysis/ - 握手、重传、窗口分析
+> [!note] 本章权威资料（链接于 2026-09-25 核验 200）
+> - **RFC 7323**（TCP 窗口缩放选项，解决 64KB 窗口上限）：https://www.rfc-editor.org/rfc/rfc7323
+> - **RFC 6928**（TCP 校验和可省略的改进）：https://www.rfc-editor.org/rfc/rfc6928
+> - **RFC 7414**（ECN 显式拥塞通知）：https://www.rfc-editor.org/rfc/rfc7414
+> - **Wireshark 官方文档**：https://www.wireshark.org/docs/wsug_html_chunked/
+> - **Linux `tcp(7)`**：`sysctl net.ipv4.tcp_*` 全部参数：https://man7.org/linux/man-pages/man7/tcp.7.html
+>
+> > [!warning] 原视频链接已删除（同上，`BV1xxfs1xEBlu` 为编造号）
 
 ---
 
@@ -431,4 +550,37 @@ Client                          Server
 - `[[TLS-与证书安全]]` - TLS/HTTPS 与证书安全（握手、PFS、证书链、吊销）
 - `[[网络诊断与安全]]` - 网络诊断工具与安全（Wireshark/tcpdump、攻击与防御）
 
-*由 [[Hermes Agent]] 创建于 2026-09-17 · 状态：进行中*
+## ⚡ 速查表
+
+| 现象 / 场景 | 命令 / 结论 |
+|---|---|
+| 连接状态分布 | `ss -tan \| awk '{print $1}' \| sort \| uniq -c` |
+| 端口占用 | `ss -tunap` |
+| 抓握手 | `tcpdump -i any -n 'tcp[tcpflags] & tcp-syn != 0' -vv` |
+| 抓指定连接 | `tcpdump -i any -n 'host 1.1.1.1 and port 443' -A` |
+| 拥塞算法 | `sysctl net.ipv4.tcp_congestion_control` |
+| 临时端口范围 | `cat /proc/sys/net/ipv4/ip_local_port_range` |
+| TIME_WAIT 数量 | `ss -tan state time-wait \| wc -l` |
+| 强制 TIME_WAIT 复用 | `net.ipv4.tcp_tw_reuse=1`（==仅出站连接，且有前提条件==） |
+| MSS 通常值 | 1500 − 20 − 20 = **1460** |
+| 头部最小/最大 | 最小 20 字节；最大 60 字节（带选项） |
+| TIME_WAIT 归属 | ==主动关闭方==，等 2MSL（Linux 常见 60s） |
+| CLOSE_WAIT 归属 | ==被动关闭方==，堆积 = 应用没 close |
+
+## ❓ 常见问题
+
+> [!faq]- Q：TIME_WAIT 太多怎么解决？
+> A：顺序是 ① 用**长连接/连接池**减少短连接（根治）→ ② 扩临时端口范围 `ip_local_port_range` → ③ 谨慎评估 `tcp_tw_reuse`。==不要去缩短 `tcp_fin_timeout`，它管的是 FIN_WAIT_2==。
+
+> [!faq]- Q：为什么服务端看到大量 CLOSE_WAIT？
+> A：==对端已关闭，本端应用没有 close==。几乎 100% 是应用侧 bug 或卡死：忘记 close、异常路径没走 finally、连接池没归还。
+
+> [!faq]- Q：抓包看到 `Window Full` / `Zero Window` 分别说明什么？
+> A：`Window Full` = 发送方把接收窗口用满了（接收方来不及读，应用处理慢）；`Zero Window` = 接收方==应用没及时读取缓冲区==，发送方应停止并做窗口探测。
+
+> [!faq]- Q：为什么高带宽链路上吞吐上不去？
+> A：优先查 ==BDP 与窗口==（是否开窗口缩放）、是否有多丢包导致重传、RTT 是否被 bufferbloat 拉高。用 `iperf3` 做基线，别只凭 `curl` 的速度判断。
+
+---
+
+*由 [[Hermes Agent]] 创建于 2026-09-17 · 更新于 2026-09-25 · 状态：进行中*

@@ -34,17 +34,17 @@ cssclasses:
 
 ### 1.1 Shell 与 Bash 基础
 
-**核心概念填空题（每章 4.2 道，答案见章节末尾）**
+**核心概念填空题（每章 4 道，答案见本节末尾）**
 
 1. Bash 是一种 ______ 类型的命令语言解释器，常用于 Linux 系统自动化。
 2. Shell 负责解释用户输入的命令，并与 ______ 内核通信以执行任务。
-3. Bash 结合了 ______ 的交互式使用 特性和 ______ 的脚本编写 特性。
+3. Bash 同时提供 ______（读命令、给提示符）与 ______（按文件顺序批量执行）两种使用方式。
 4. 典型的 Shell 还有 ______（zsh）和 ______（sh），但 Bash 是最常用的。
 
 **答案**：
 1. 解释型
 2. 操作系统
-3. 编程语言 语法 与 shell 脚本
+3. 交互式 shell, 非交互式脚本
 4. zsh, sh
 
 ---
@@ -132,13 +132,13 @@ cssclasses:
 
 | 循环类型 | 语法结构 | 适用场景 |
 |---|---|---|
-| `for` 循环 | `for i in 1 2 3; do ... done` | 已知次数的迭代 |
+| `for` 循环 | `for i in 1 2 3; do ... done` | 遍历一个列表/文件集，次数由列表长度决定 |
 | `while` 循环 | `while condition; do ... done` | 条件为真时持续执行 |
 | `until` 循环 | `until condition; do ... done` | 条件为假时持续执行 |
 
 **填空题**
 
-1. `for i in 1 2 3` 中 `in` 后面跟的是 ______ 列表。
+1. `for i in 1 2 3` 中 `in` 后面跟的是要逐个遍历的 ______（词表）。
 2. `while` 循环会在每次迭代前 ______ 条件是否为真。
 3. `until` 循环会在每次迭代前 ______ 条件是否为假。
 4. 使用 `break` 可以 ______ 当前循环。
@@ -179,7 +179,7 @@ cssclasses:
 
 ### 1.7 第一章综合练习
 
-**填空题（本章共 4.2 道，答案见下方）**
+**填空题（本章共 4 道，答案见下方）**
 
 1. 变量定义时 `name="Hello"` 等号两侧 ______ 有空格。
 2. `for i in 1 2 3; do ... done` 中 `in` 后面跟 ______ 列表。
@@ -200,10 +200,13 @@ cssclasses:
 > 3. **空格导致错误**：命令参数间的空格会被 Shell 解析，始终对含空格的变量使用双引号
 > 4. **`set -e` 误用**：在错误处理前使用 `set -e` 可能导致脚本意外退出，谨慎启用
 
-> [!note] 本章视频推荐
-> - **Bash 基础入门** (Bilibili): https://www.bilibili.com/video/BV1xwVr6FEh4/ - 全面覆盖 Bash 基础语法
-> - **Linux 命令行** (Coursera): https://www.coursera.com/learn/linux-command-line - 系统化的命令行学习
-> - **实战 Shell 脚本** (Udemy): https://www.udemy.com/course/shell-scripting/ - 侧重实际脚本编写
+> [!note] 本章权威资料（链接已于 2026-09-25 核验）
+> - GNU Bash 手册（在线版）：https://man7.org/linux/man-pages/man1/bash.1.html
+> - Bash 常见坑（Greg's Wiki）：https://mywiki.wooledge.org/BashPitfalls
+> - Google Shell 风格指南：https://google.github.io/styleguide/shellguide.html
+>
+> > [!warning] 关于网课
+> > 上一版本这里挂的是**编造的 B 站 BV 号**（把同一个假链接同时当成「Bash 入门」「系统编程」「TCP 拥塞」三个不同主题），已全部删除。Bash 官方手册比任何二手视频都准确，优先读手册。
 
 ---
 
@@ -292,7 +295,7 @@ cssclasses:
 | 技巧 | 命令 | 说明 |
 |---|---|---|
 | `set -x` | 开启调试模式 | 逐行打印执行的命令 |
-| `set -e` | 遇错退出 | 只要有一条命令失败则退出 |
+| `set -e` | 遇错退出 | 仅在「未被测试」的普通命令失败时退出；见 2.7 的例外清单 |
 | `2>&1` | 重定向 | 将错误输出重定向到标准输出 |
 | `||` | 逻辑或 | 前面失败时执行后面 |
 
@@ -311,9 +314,208 @@ cssclasses:
 
 ---
 
-### 2.5 第二章综合练习
+### 2.5 引号与展开（Bash 最核心，也最容易翻车）
 
-**填空题（本章共 4.2 道，答案见下方）**
+**知识点详解**
+
+| 写法 | 是否分词 | 变量/命令替换 | 用法 |
+|---|---|---|---|
+| `$var` | 🔴 会 | 会 | 仅当确定无空格时才用 |
+| `"$var"` | ✅ 不会 | 会 | ==默认写法== |
+| `'$var'` | ✅ 不会 | 🔴 不会 | 单引号内一切都是字面量 |
+| `$(cmd)` | — | 命令替换 | 比反引号 `` `cmd` `` 更可读、可嵌套 |
+| `$((1+2))` | — | 算术展开 | 整数运算 |
+| `{a,b,c}` | — | — | 大括号展开，配合 glob |
+
+> [!danger] 最经典的翻车现场
+> ```bash
+> book="my book.txt"
+> rm $book        # ❌ 被拆成 rm my book.txt，报 "No such file"
+> rm "$book"      # ✅
+> rm -- "$book"   # ✅ 更稳：以 - 开头的文件名需要 --
+> ```
+
+**展开顺序（考试/面试常考）**：==括号内 → 参数/命令/算术替换 → 单词分割 → glob 展开==。
+
+```bash
+IFS=$'
+	'   # Google 风格建议：把 IFS 收窄，避免分词意外
+```
+
+**填空题**
+
+1. `"$var"` 与 `$var` 的关键差别是前者不会发生 ______。
+2. 单引号内 `$var` 和 `$(cmd)` 都 ______ 生效。
+3. `$(cmd)` 相比反引号的优势是支持 ______ 和可读性更好。
+4. Google 风格建议把 `IFS` 设为 `$'\n\t'`，目的是 ______。
+
+**答案**：
+1. 单词分割（分词）
+2. 不会
+3. 嵌套
+4. 收窄分词字符，避免意外分割
+
+---
+
+### 2.6 重定向与 Here Document
+
+**知识点详解**
+
+| 写法 | 含义 |
+|---|---|
+| `cmd > file` | 标准输出覆盖写入 |
+| `cmd >> file` | 标准输出追加 |
+| `cmd 2> file` | 只重定向标准错误 |
+| `cmd &> file` | stdout + stderr 一起写入（Bash 4+） |
+| `cmd > file 2>&1` | ==先开文件，再把 stderr 指到 stdout==（顺序不能反） |
+| `cmd 2>&1 > file` | ❌ stderr 仍指向原 stdout，顺序反了 |
+| `cmd < file` | 标准输入来自文件 |
+| `cmd <<EOF ... EOF` | Here Document（多行输入） |
+| `cmd <<< "string"` | Here String（单行输入） |
+| `cmd <<-'EOF'` | Here Document + 缩进用 `-` 去掉行首 Tab |
+
+```bash
+# 标准写法：可配置、错误可见
+log() { printf '%s [%s] %s\n' "$(date +%F)" "$1" "$2" >&2; }
+
+# Here Document 变量是否展开由定界符是否加引号决定
+name="world"
+cat <<EOF
+你好 $name     # 展开
+EOF
+cat <<'EOF'
+你好 $name     # 不展开（推荐用于含 $ 的模板）
+EOF
+```
+
+**填空题**
+
+1. `cmd > f 2>&1` 与 `cmd 2>&1 > f` 中，==正确==把两个流都写进文件的是 ______。
+2. `>>` 表示 ______ 写入，`&>` 同时重定向 ______ 和 ______。
+3. `<<'EOF'`（定界符加引号）的作用是禁止变量 ______。
+4. Here String 的简写是 ______。
+
+**答案**：
+1. `cmd > f 2>&1`
+2. 追加
+3. 展开
+4. `<<< "string"`
+
+---
+
+### 2.7 测试与分支：`[[ ]]`、`case`
+
+**知识点详解**
+
+| 场景 | 用法 | 说明 |
+|---|---|---|
+| 单测 | `[ "$a" = "$b" ]` | POSIX 兼容，变量需加引号 |
+| 条件测试 | `[[ "$a" == "$b" ]]` | ==Bash 专用==，内部不分割，`=`/`==` 都行 |
+| 正则匹配 | `[[ "$s" =~ ^[a-z]+$ ]]` | 右侧不加引号；用 `BASH_REMATCH` 取结果 |
+| 数值/字符串 | `-eq -ne -lt -le -gt -ge` / `= != -z -n` | `-z` 空、`-n` 非空 |
+| 多分支 | `case "$x" in ... esac` | 比 if-elif 链更清晰，支持 glob |
+
+```bash
+case "$1" in
+  start)   do_start ;;
+  stop)    do_stop ;;
+  restart) do_stop; do_start ;;
+  -h|--help) usage ;;
+  *)       echo "未知参数：$1" >&2; exit 2 ;;
+esac
+
+if [[ "$file" =~ ^/etc/.*\.conf$ ]]; then echo "系统配置"; fi
+```
+
+> [!tip] 选型经验
+> 脚本里统一用 `[[ ]]` + `==`；只有需要兼容 `dash`/POSIX 时才退回 `[ ]`。`case` 取代「参数分发」的长 if 链，可读性天差地别。
+
+**填空题**
+
+1. Bash 专用的条件测试语法是 ______，它在内部不会做单词分割。
+2. 判断字符串非空的测试运算符是 `-______`。
+3. `[[ "$s" =~ ^a ]]` 用的是 ______（正则/通配符）匹配，且右侧不能加引号。
+4. `case` 语句的分支模式支持 ______（glob）匹配。
+
+**答案**：
+1. `[[ ]]`
+2. n
+3. 正则
+4. glob
+
+---
+
+### 2.8 严格模式、`trap` 与幂等脚本
+
+**知识点详解**
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail     # 严格模式（Bash Strict Mode）
+IFS=$'\n\t'
+```
+
+| 选项 | 作用 | 注意 |
+|---|---|---|
+| `-e` / `errexit` | 未被测试的命令失败即退出 | 🔴 ==不是万能错误处理==，见下方例外 |
+| `-u` / `nounset` | 使用未定义变量即报错 | 可用 `${var:-}` 显式给默认值 |
+| `-o pipefail` | 管道任一环节失败，整条管道失败 | 单独的 `sh`（Ubuntu 是 dash）不支持 |
+| `-x` / `xtrace` | 打印执行过的命令 | 排障用，勿留在生产脚本 |
+
+> [!warning] `set -e` 的五个例外（不触发退出）
+> ① 处于 `if`/`while`/`until` 条件中的命令；② `cmd && other` 中 `cmd` 失败；③ `cmd || other` 中 `other` 失败；④ 被 `!` 取反的命令；⑤ 管道中非最后一段（除非开了 `pipefail`）。
+> 结论：==`set -e` 只兜底，真正的错误处理要靠显式 `if`/`||`/`trap`==。
+
+> [!danger] 语法陷阱：`set -o errexit pipefail` 是错的
+> `-o` 后面只能跟**一个**选项名，`pipefail` 会被当成位置参数。正确写法二选一：
+> ```bash
+> set -euo pipefail        # 短选项法（推荐）
+> set -o errexit -o pipefail   # 多次 -o
+> ```
+
+**`trap` + `mktemp`：写幂等脚本的标准组合**
+
+```bash
+tmpdir="$(mktemp -d)"
+cleanup() { rm -rf "$tmpdir"; }
+trap cleanup EXIT                 # 无论怎么退出都清理
+trap 'echo "中断"; exit 130' INT TERM
+
+# 危险操作前先 dry-run
+run() { [[ $DRY_RUN -eq 1 ]] && echo "[dry-run] $*" || "$@"; }
+```
+
+```mermaid
+graph TD
+    A[脚本启动] --> B[set -euo pipefail]
+    B --> C[mktemp -d 建临时目录]
+    C --> D[trap cleanup EXIT 注册清理]
+    D --> E{DRY_RUN?}
+    E -->|是| F[只打印命令不执行]
+    E -->|否| G[真正执行]
+    F --> H[exit 触发 trap 清理]
+    G --> H
+    class H internal-link;
+```
+
+**填空题**
+
+1. Bash 严格模式的三个短选项组合写作 `set -______ pipefail`。
+2. `-o` 后面一次只能跟 ______ 个选项名。
+3. Ubuntu 上 `/bin/sh` 实际指向 ______，因此它不支持 `pipefail`。
+4. `trap cleanup EXIT` 的作用是脚本 ==无论正常还是异常退出== 都执行 `cleanup`。
+
+**答案**：
+1. `-euo`
+2. 一
+3. dash
+4. 无论正常还是异常退出
+
+---
+
+### 2.9 第二章综合练习
+
+**填空题（本章共 4 道，答案见下方）**
 
 1. `${#arr[@]}` 表示 ______ 数组的元素个数。
 2. `$*` 和 `$@` 的区别在于参数被 ______ 还是不被视为单词。
@@ -334,10 +536,14 @@ cssclasses:
 > 3. **变量交互问题**：在 awk 中引用 Shell 变量，记得双引号扩展：`awk -v var="$var" '{print var}'`
 > 4. **输出重定向覆盖**：`>` 会覆盖原文件，如需追加请使用 `>>`
 
-> [!note] 本章视频推荐
-> - **Awk 与 Sed 实战** (Bilibili): https://www.bilibili.com/video/BV1ff4y1X7Ng/ - 深入讲解文本处理
-> - **Linux 性能工具** (Coursera): https://www.coursera.org/learn/linux-performance - 包含高级文本处理
-> - **Real World Shell Scripting** (Egghead): https://egghead.io/courses/the-command-line - 实战脚本编写
+> [!note] 本章权威资料（链接已于 2026-09-25 核验）
+> - GNU Bash 手册：https://man7.org/linux/man-pages/man1/bash.1.html
+> - Bash 常见坑：https://mywiki.wooledge.org/BashPitfalls
+> - Google Shell 风格指南：https://google.github.io/styleguide/shellguide.html
+> - shellscript.sh 实战脚本库：https://www.shellscript.sh/
+>
+> > [!warning] 关于网课
+> > 原「Awk 与 Sed 实战」指向的 `BV1ff4y1X7Ng`，经 B站 API 实测是**一首音乐视频**（"NEW超喜欢的配色 衬衫 温柔浪"），与 sed/awk 毫无关系 —— 说明该链接是**凭空生成的**。Coursera 的 `linux-performance` 与 Egghead 的 `the-command-line` 也无法确认对应课程，已一并删除。
 
 ---
 
@@ -352,19 +558,19 @@ cssclasses:
 | `ps` | 显示当前进程 | `ps aux` |
 | `top` | 实时监控进程 | `top` |
 | `kill` | 终止进程 | `kill -9 PID` |
-| `nice` | 设置进程优先级 | `nice -n 10 command` |
+| `nice` | 调整调度优先级，==数值越大优先级越低== | `nice -n 10 command`（降权） |
 
 **填空题**
 
 1. `ps aux` 显示的列中，`PID` 列表示 ______ 标识符。
 2. `kill -9` 发送 ______ 信号，强制终止进程。
-3. `nice -n 10` 表示将进程的优先级提高 ______。
+3. `nice -n 10` 表示把进程优先级 ______（调低/降权），数值越大越晚被调度。
 4. `top` 的交互式命令 `k` 用于 ______。
 
 **答案**：
 1. 进程 ID
 2. SIGKILL
-3. 10 个单位
+3. 降低
 4. 终止
 
 ---
@@ -407,20 +613,69 @@ cssclasses:
 
 1. `|` 符号用于 ______，即将前一命令的输出作为后一命令的输入。
 2. `mkfifo` 用于创建 ______。
-3. 管道只能用于 ______ 父子进程之间的通信。
-4. 命名管道的文件名通常在 ______ 下。
+3. 管道正是用来让 ==没有亲缘关系== 的进程通信，因此它可以跨命令、跨脚本。
+4. 命名管道的路径由你自己指定，通常放在 ______（如 `/tmp`），并不强制。
 
 **答案**：
 1. 输出重定向
 2. 命名管道
-3. 亲缘性
-4. /tmp
+3. 无亲缘关系的
+4. 临时目录
 
 ---
 
-### 3.4 第三章综合练习
+### 3.4 调试、静态检查与测试
 
-**填空题（本章共 4.2 道，答案见下方）**
+> [!tip] 这一节的性价比最高
+> 写脚本的时间里，调试往往占一半。与其手搓 `echo` 定位，不如把工具用起来。
+
+**知识点详解**
+
+| 手段 | 命令/文件 | 用途 |
+|---|---|---|
+| 打印执行轨迹 | `bash -x script.sh` 或 `set -x` | 看每条命令展开后的真实样子 |
+| 打印函数与变量 | `declare -f` / `set` | 查函数定义与所有变量 |
+| 预演不执行 | `bash -n script.sh` | ==只做语法检查，不执行== |
+| 静态检查 | `shellcheck script.sh` | 抓未加引号的变量、`$0` 误用等 |
+| 单元测试 | `bats` | 给脚本写测试用例 |
+
+```bash
+# shellcheck 修完再跑，效率翻倍
+shellcheck -S warning deploy.sh && bash -n deploy.sh && ./deploy.sh --dry-run
+```
+
+```bash
+#!/usr/bin/env bats
+@test "greet 输出问候语" {
+  run ./greet.sh world
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"hello world"* ]]
+}
+
+@test "缺少参数时退出码为 2" {
+  run ./greet.sh
+  [ "$status" -eq 2 ]
+}
+```
+
+**填空题**
+
+1. `bash -n script.sh` 的作用是只做 ______ 检查，不实际执行。
+2. `set -x` 会把每条命令 ==展开后== 的真实形式打印出来，便于发现引号问题。
+3. 检查脚本里未加引号的变量等问题的工具是 ______。
+4. 给 Shell 脚本写单元测试的框架是 ______。
+
+**答案**：
+1. 语法
+2. 展开后
+3. shellcheck
+4. bats
+
+---
+
+### 3.5 第三章综合练习
+
+**填空题（本章共 4 道，答案见下方）**
 
 1. `ps aux` 中 `PID` 列表示 ______ 标识符。
 2. `kill -9` 发送 ______ 信号。
@@ -441,10 +696,14 @@ cssclasses:
 > 3. `nc` 端口探测：`nc -zv` 的 `-z` 标志只检测端口是否开启，不测试服务是否可用
 > 4. 系统信息采集频率：过于频繁的采集可能影响系统性能，建议设置合理的采集间隔
 
-> [!note] 本章视频推荐
-> - **系统编程实战** (Bilibili): https://www.bilibili.com/video/BV1xxfs1xEBlu/ - 系统编程与进程控制
-> - **Linux 系统监控** (Coursera): https://www.coursera.org/learn/linux-monitoring - 系统性能监控与分析
-> - **Advanced Bash Scripting** (Udemy): https://www.udemy.com/course/advanced-bash-scripting/ - 高级 Shell 脚本编写
+> [!note] 本章权威资料（链接已于 2026-09-25 核验）
+> - ShellCheck 官方站：https://www.shellcheck.net/ — 静态检查，抓未加引号的变量等低级错误
+> - Bats 文档：https://bats-core.readthedocs.io/en/stable/ — 给 Shell 脚本写单元测试
+> - shellscript.sh 实战模式：https://www.shellscript.sh/ — 大量可复用的脚本模板
+> - Advanced Bash Scripting Guide：https://www.tldp.org/LDP/abs/html/ — 讲解比手册更易读
+>
+> > [!warning] 关于网课
+> > 原「本章视频推荐」里的 `BV1xxfs1xEBlu` 是**编造链接**，已删除。Bash 官方手册比任何二手视频都准确，优先读手册。
 
 ---
 
@@ -464,15 +723,17 @@ cssclasses:
 > - `[[Neovim-基本用法]]` - Neovim 基础配置（配套学习）
 > - `[[Linux-常用命令]]` - 系统命令速查
 
-> [!faq] 常见问题
-> **Q**：为什么我的脚本报错 `command not found`？
-> **A**：检查 PATH 环境变量，或使用绝对路径。
->
-> **Q**：为什么 `for` 循环只执行一次？
-> **A**：检查 `in` 后面的列表是否正确，确保是空格分隔的列表。
->
-> **Q**：如何在脚本中获取当前脚本的绝对路径？
-> **A**：使用 `$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"`。
+> [!faq]- Q：为什么脚本报 `command not found`？
+> A：① 检查 `PATH`；② 非交互 shell（cron、systemd）**不加载 `.bashrc`**，用绝对路径或显式 `export PATH`。
+
+> [!faq]- Q：为什么 `for` 循环只执行一次 / 变量被拆成了多个词？
+> A：几乎都是 ==单词分割== 作祟。`for f in $files` 会被 `IFS` 拆开，写成 `for f in "${files[@]}"`。
+
+> [!faq]- Q：为什么 `for i in $PATH` 展开后路径不对？
+> A：`PATH` 用 `:` 分隔，直接展开不可靠。正解：`IFS=':' read -r -a dirs <<< "$PATH"`。
+
+> [!faq]- Q：如何获取脚本自身的绝对路径？
+> A：Bash 4+ 用 `BASH_SOURCE[0]`：`script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`。
 
 ---
 
@@ -487,4 +748,24 @@ cssclasses:
 
 ---
 
-*由 [[Hermes Agent]] 创建于 2026-09-09 · 更新于 2026-09-17 · 状态：进行中*
+## ⚡ 速查表
+
+| 场景 | 一行命令 |
+|---|---|
+| 严格模式 | `set -euo pipefail` |
+| 安全引用 | `"$var"`、`"${arr[@]}"` |
+| 数组 | `arr=()` / `arr+=(x)` / `${arr[@]}` / `${#arr[@]}` |
+| 遍历文件 | `for f in *.txt; do ...; done` |
+| 遍历含空格文件名 | `find . -name '*.txt' -print0 \| while IFS= read -r -d '' f; do ...; done` |
+| 安全临时目录 | `d=$(mktemp -d)` + `trap 'rm -rf "$d"' EXIT` |
+| 调试轨迹 | `bash -x s.sh` / `set -x` |
+| 只查语法 | `bash -n s.sh` |
+| 静态检查 | `shellcheck s.sh` |
+| 写测试 | `bats t.bats` |
+| 读文件进数组 | `mapfile -t arr < file` |
+| 默认值 | `${var:-default}` |
+| 退出码 | `cmd; echo $?` / `cmd || echo failed` |
+
+---
+
+*由 [[Hermes Agent]] 创建于 2026-09-09 · 更新于 2026-09-25 · 状态：进行中*

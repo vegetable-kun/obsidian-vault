@@ -46,7 +46,7 @@ cssclasses:
 > [!tip] 记忆技巧
 > HTTP 是“文本驱动”的协议（至少在 1.1/2 初期可读性强），请求=“我要什么”，响应=“结果与元信息”。
 
-**填空题（每章 4.2 道，答案见章节末尾）**
+**填空题（每章 4 道，答案见本节末尾）**
 
 1. HTTP 请求的第一行由 ______、______、______ 三部分组成。
 2. 请求头与请求体之间必须用 ______ 分隔。
@@ -151,7 +151,7 @@ cssclasses:
 
 ### 1.5 第一章综合练习
 
-**填空题（本章共 4.2 道，答案见下方）**
+**填空题（本章共 4 道，答案见下方）**
 
 1. HTTP 请求第一行由 ______、______、______ 组成。
 2. 表示“服务器内部错误”的状态码类别是 ______。
@@ -179,10 +179,13 @@ cssclasses:
 > 3. **Host 头忽略**：HTTP/1.1 请求缺少 Host 可能被拒绝（400）。
 > 4. **Content-Type 与实际内容不匹配**：会导致对方解析错误。
 
-> [!note] 本章视频推荐
-> - **HTTP 请求与响应结构** (Bilibili): https://www.bilibili.com/video/BV1qwLBE3Gh4/ - HTTP 基础格式讲解
-> - **HTTP 方法与状态码** (Coursera): https://www.coursera.org/learn/web-protocols - 方法语义与状态码分类
-> - **HTTP 首部详解** (Udemy): https://www.udemy.com/course/http-headers/ - 常见首部与语义
+> [!note] 本章权威资料（链接于 2026-09-25 核验 200）
+> - **RFC 9110**（HTTP 语义：方法、状态码、首部）：https://www.rfc-editor.org/rfc/rfc9110
+> - **RFC 9112**（HTTP/1.1 消息语法）：https://www.rfc-editor.org/rfc/rfc9112
+> - **MDN HTTP 文档**（实践写法最全）：https://developer.mozilla.org/zh-CN/docs/Web/HTTP
+>
+> > [!warning] 原视频链接已删除
+> > 原 `BV1qwLBE3Gh4` 经 B站 API 验证返回 **-400（BV 号不存在）**，Coursera / Udemy 路径同样无法确认课程，==均属凭空生成==。HTTP 语义以 RFC 9110 为准，实践写法看 MDN。
 
 ---
 
@@ -213,6 +216,56 @@ cssclasses:
 3. 304
 4. 修改时间（时间戳）
 
+#### 2.1.1 缓存指令的真实语义（最容易背错的部分）
+
+| 指令 | 能否存储 | 能否直接复用 | 说明 |
+|---|---|---|---|
+| `max-age=N` | ✅ | ✅ N 秒内 | 基础新鲜期 |
+| `no-cache` | ✅ **能存** | 🔴 必须先验证 | ==名字骗人：不是「不缓存」==，是「不信任」 |
+| `no-store` | 🔴 **完全不存** | 🔴 | 任何缓存都不写，含浏览器 |
+| `must-revalidate` | ✅ | 过期后必须验证 | 断网时返回 504，不给陈旧响应 |
+| `immutable` | ✅ | ✅ 且免验证 | 配合长 `max-age` 用于带 hash 的静态资源 |
+| `s-maxage` | 仅共享缓存 | ✅ | CDN 用的新鲜期，覆盖 `max-age` |
+| `private` | 仅私有缓存 | — | 含用户数据的响应禁止进 CDN |
+| `stale-while-revalidate` | ✅ | ✅ 先给旧的、后台更新 | 弱网体验优化 |
+
+> [!danger] 最常见的两个误解
+> ① `no-cache` ≠ 不缓存（它只是强制每次验证）；要「不缓存」得用 `no-store`。
+> ② `max-age=0` + `must-revalidate` 是为了兼容老 HTTP/1.0 缓存的变通写法，==现代场景直接用 `no-cache` 即可==。
+
+#### 2.1.2 ETag：强校验器、弱校验器与乐观锁
+
+| 类型 | 形式 | 含义 | 可用于 Range |
+|---|---|---|---|
+| 强 ETag | `"6868976"` | ==逐字节相同== | ✅ |
+| 弱 ETag | `W/"6868976"` | 语义等价，字节可能不同 | ❌ |
+
+```bash
+# 缓存验证（省带宽）
+curl -I https://example.com/a.js
+curl -I -H 'If-None-Match: "6868976"' https://example.com/a.js   # → 304
+
+# 乐观并发控制（防丢失更新）
+curl -X PUT -H 'If-Match: "6868976"' https://example.com/a.js     # 不匹配 → 412
+```
+
+> [!tip] 选型
+> 静态资源 ==用内容 hash 做 URL + `max-age=31536000, immutable`==，彻底不验证；动态接口用强 ETag。
+> ETag 若依赖 inode/时间戳，在多机负载均衡下会不一致 → 缓存命中率暴跌，==应基于内容生成==。
+
+**填空题**
+
+1. `no-cache` 允许 ______ 响应，但复用前必须先验证。
+2. 完全禁止任何缓存存储应使用 `no-______`。
+3. 弱 ETag 的前缀是 `W/`，表示内容 ==字节相同/语义等价==。
+4. 用 `If-Match` 做乐观锁失败时服务器返回 ______。
+
+**答案**：
+1. 存储
+2. store
+3. 语义等价
+4. 412 Precondition Failed
+
 ---
 
 ### 2.2 持久连接与连接管理
@@ -238,6 +291,29 @@ cssclasses:
 2. 减少握手时延/连接开销
 3. 队头阻塞（串行等待）
 4. 服务器或客户端（或超时）
+
+#### 2.2.1 消息体如何结束？`Content-Length` vs `Transfer-Encoding`
+
+| 方式 | 首部 | 效果 |
+|---|---|---|
+| 定长 | `Content-Length: 1234` | 客户端读满 N 字节即结束 |
+| 分块 | `Transfer-Encoding: chunked` | 服务端边生成边发送，==每块自带长度，最后 0 块收尾== |
+| 关闭连接 | 无 | HTTP/1.0 常见；HTTP/1.1 除非明确，否则不能用关连接来定界 |
+
+> [!warning] 安全坑
+> 同时存在 `Content-Length` 与 `Transfer-Encoding` 时，历史上有 **Request Smuggling（请求走私）** 风险；反代（nginx）与后端解析不一致就会被利用。生产配置应只允许一种。
+
+#### 2.2.2 Cookie 与会话安全（结合你的安全主线）
+
+| 属性 | 作用 | 缺失后果 |
+|---|---|---|
+| `HttpOnly` | JS 读不到 | 缓解 XSS 窃取 Cookie |
+| `Secure` | 只走 HTTPS | 明文 HTTP 下泄露 |
+| `SameSite=Lax/Strict/None` | 限制跨站携带 | 缓解 CSRF（`Lax` 是现代浏览器默认） |
+| `Max-Age/Expires` | 持久化时间 | 不设则是会话 Cookie |
+
+> [!tip] 与安全笔记联动
+> 会话劫持、CSRF 的完整攻防见 [[TLS-与证书安全]] 与 [[网络诊断与安全]]；本节只强调「HTTP 层的会话属性同样是安全边界」。
 
 ---
 
@@ -295,7 +371,7 @@ cssclasses:
 
 ### 2.5 第二章综合练习
 
-**填空题（本章共 4.2 道，答案见下方）**
+**填空题（本章共 4 道，答案见下方）**
 
 1. `Cache-Control: max-age=600` 表示资源在 ______ 内被视为新鲜。
 2. 协商缓存命中时，服务器返回状态码 ______。
@@ -323,10 +399,13 @@ cssclasses:
 > 3. **跨域与服务器故障混淆**：CORS 错误是浏览器策略问题，不一定是服务器错误。
 > 4. **DNS 缓存干扰**：本地/ISP/浏览器可能缓存记录，排查域名解析时需多级确认。
 
-> [!note] 本章视频推荐
-> - **HTTP 缓存详解** (Bilibili): https://www.bilibili.com/video/BV1qwLBE3Gh4/ - 强制缓存与协商缓存
-> - **HTTP 持久连接与性能** (Coursera): https://www.coursera.org/learn/web-protocols - keep-alive 与连接复用
-> - **DNS 基础与查询流程** (Udemy): https://www.udemy.com/course/dns-basics/ - DNS 记录与查询
+> [!note] 本章权威资料（链接于 2026-09-25 核验 200）
+> - **RFC 9111**（HTTP Caching，取代 RFC 7234）：https://www.rfc-editor.org/rfc/rfc9111
+> - **RFC 6265**（Cookie 规范）：https://www.rfc-editor.org/rfc/rfc6265
+> - **MDN 缓存指南**（指令语义最清晰）：https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Caching
+> - **MDN Cache-Control 参考**：https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Cache-Control
+>
+> > [!warning] 原视频链接已删除（同上，`BV1qwLBE3Gh4` 为编造号）
 
 ---
 
@@ -378,43 +457,17 @@ cssclasses:
 
 1. HTTP/3 使用 ______ 作为传输层基础。
 2. QUIC 的一个关键优势是各流 ______，避免 TCP 层丢包阻塞所有流。
-3. HTTP/3 支持的连接建立方式在握手次数上可能少于 ______。
+3. 相比「HTTP/2 + TCP + TLS」，HTTP/3 的 QUIC 握手往返次数更 ______。
 4. QUIC 支持 ______ 功能，可在网络变化时保持连接。
 
 **答案**：
 1. QUIC（运行在 UDP 上）
 2. 独立（独立处理）
-3. HTTP/2（或 TCP 握手）
+3. 少（0-RTT/1-RTT）
 4. 连接迁移（或基于连接 ID）
 
 ---
 
-### 3.2 HTTP/3 与 QUIC：基于 UDP 的演进
-
-**知识点详解**
-
-| 内容 | 说明 |
-|---|---|
-| QUIC 基础 | 基于 UDP 的传输协议，集成加密与多路复用 |
-| 握手优化 | 减少往返，支持 0-RTT/1-RTT 连接建立（视情况） |
-| 独立流 | 每个流独立处理，避免 TCP 层丢包阻塞所有流 |
-| 连接迁移 | 基于连接 ID，可在网络变化时保持连接 |
-| 适用场景 | 不稳定网络、移动网络、高延迟环境优势更明显 |
-
-**填空题**
-
-1. HTTP/3 使用 ______ 作为传输层基础。
-2. QUIC 的一个关键优势是各流 ______，避免 TCP 层丢包阻塞所有流。
-3. HTTP/3 支持的连接建立方式在握手次数上可能少于 ______。
-4. QUIC 支持 ______ 功能，可在网络变化时保持连接。
-
-**答案**：
-1. QUIC（运行在 UDP 上）
-2. 独立（独立处理）
-3. HTTP/2（或 TCP 握手）
-4. 连接迁移（或基于连接 ID）
-
----
 
 ### 3.3 HTTP 性能对比与抓包观察
 
@@ -448,7 +501,7 @@ cssclasses:
 
 ### 3.4 第三章综合练习
 
-**填空题（本章共 4.2 道，答案见下方）**
+**填空题（本章共 4 道，答案见下方）**
 
 1. HTTP/2 的关键特性之一是 ______，允许多个请求/响应在一个连接上并行。
 2. HTTP/2 使用 ______ 压缩重复的头部字段。
@@ -476,10 +529,14 @@ cssclasses:
 > 3. **服务器推送过度使用**：服务器推送可能造成资源浪费，现代实践多减少或取消。
 > 4. **HPACK 误解**：HPACK 是头压缩，不是内容压缩；内容仍由 `Content-Encoding` 控制。
 
-> [!note] 本章视频推荐
-> - **HTTP/2 原理与多路复用** (Bilibili): https://www.bilibili.com/video/BV1xxfs1xEBlu/ - HTTP/2 特性与队头阻塞局限
-> - **HTTP/3 与 QUIC 详解** (Coursera): https://www.coursera.org/learn/web-protocols - QUIC 基础与握手优化
-> - **HTTP 性能与协议演进** (Udemy): https://www.udemy.com/course/http-performance/ - 协议对比与性能分析
+> [!note] 本章权威资料（链接于 2026-09-25 核验 200）
+> - **RFC 9113**（HTTP/2）：https://www.rfc-editor.org/rfc/rfc9113
+> - **RFC 9114**（HTTP/3）：https://www.rfc-editor.org/rfc/rfc9114
+> - **RFC 7540**（QUIC 传输，HTTP/3 的底层）：https://www.rfc-editor.org/rfc/rfc7540
+> - **MDN HTTP 指南**（含 HTTP/2、HTTP/3 章节）：https://developer.mozilla.org/zh-CN/docs/Web/HTTP
+>
+> > [!warning] 原视频链接已删除
+> > `BV1xxfs1xEBlu` 是编造 BV 号（同一假号还被复用在 TCP、TLS、安全三篇里），已全部清除。
 
 ---
 
@@ -490,4 +547,39 @@ cssclasses:
 - `[[TLS-与证书安全]]` - TLS/HTTPS 与证书安全（握手、PFS、证书链、吊销）
 - `[[网络诊断与安全]]` - 网络诊断工具与安全（Wireshark/tcpdump、攻击与防御）
 
-*由 [[Hermes Agent]] 创建于 2026-09-17 · 状态：进行中*
+## ⚡ 速查表
+
+| 场景 | 命令 / 首部 |
+|---|---|
+| 看首部 | `curl -I https://example.com` |
+| 看完整握手与协议版本 | `curl -v --http2 https://example.com -o /dev/null` |
+| 强制 HTTP/1.1 | `curl --http1.1 https://example.com` |
+| 协商缓存验证 | `curl -I -H 'If-None-Match: "<etag>"' <url>` → 304 |
+| 乐观锁写入 | `curl -X PUT -H 'If-Match: "<etag>"' <url>` → 412 |
+| 看 TLS 与 HTTP/2 协商 | `curl -v` 输出中的 `ALPN`、`SSL connection` |
+| 免缓存请求 | `curl -H 'Cache-Control: no-cache' <url>` |
+| 方法 | GET/HEAD/POST/PUT/PATCH/DELETE/OPTIONS |
+| 304 含义 | ==未修改，用你的本地副本==（不是「资源不存在」） |
+| 静态资源最优配置 | 带 hash 的 URL + `Cache-Control: public, max-age=31536000, immutable` |
+| 禁用存储 | `Cache-Control: no-store`（==不是 no-cache==） |
+
+## ❓ 常见问题
+
+> [!faq]- Q：`no-cache` 到底能不能缓存？
+> A：**能存**。它的意思是「每次复用前必须回源验证」。要「不落盘、不存储」用 `no-store`。
+
+> [!faq]- Q：为什么我的接口每次都返回 200 而不是 304？
+> A：常见原因 ① 响应没有 `ETag` / `Last-Modified`；② ETag 基于 inode/时间戳，多机部署不一致；③ 中间层（CDN/nginx）清掉了首部；④ 响应带 `no-store` 或 `Vary` 过多。
+
+> [!faq]- Q：HTTP/2 一定比 HTTP/1.1 快吗？
+> A：不一定。HTTP/2 仍跑在 TCP 上，==一次丢包会阻塞该连接上的所有流==。高丢包/高 RTT 环境下，HTTP/3（QUIC）才真正解决队头阻塞。
+
+> [!faq]- Q：`Transfer-Encoding: chunked` 为什么必须知道？
+> A：说明响应长度未知、边生成边发。抓包里看到大量 chunk，且首部同时出现 `Content-Length`，要警惕 ==Request Smuggling==（nginx 与后端解析不一致）。
+
+> [!faq]- Q：Cookie 没设 `SameSite` 有什么风险？
+> A：浏览器默认已是 `Lax`（现代浏览器），但老浏览器会带 Cookie 访问跨站 GET → CSRF 风险。涉及状态的接口应显式设 `SameSite` 并配合 CSRF Token。
+
+---
+
+*由 [[Hermes Agent]] 创建于 2026-09-17 · 更新于 2026-09-25 · 状态：进行中*
