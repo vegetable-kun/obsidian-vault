@@ -203,11 +203,11 @@ graph LR
 ## 🔗 相关链接
 
 - [[AI-Agent-学习路线]]
-- [[B站教程资源]]
-- [[GitHub-ai-agents-from-zero]]
-- [[Hermes-Agent-架构分析]]
+- B站教程（BV1xwVr6FEh4，实测 94 分P）
+- GitHub: didilili/ai-agents-from-zero
+- [[MCP-协议详解]]
 - [[RAG-系统设计]]
-- [[LangGraph-实战]]
+- [[Agent-框架]]
 - [[MCP-协议详解]]
 
 ---
