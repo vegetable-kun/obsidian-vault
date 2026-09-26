@@ -12,6 +12,7 @@ aliases:
 cssclasses:
   - learning
 source:
+  # 以下链接于 2026-09-25 核验；B 站视频标题自称「748 集」，API 实测仅 94 个分P
   - https://github.com/didilili/ai-agents-from-zero
   - https://www.bilibili.com/video/BV1xwVr6FEh4/
   - https://www.anthropic.com/engineering/building-effective-agents

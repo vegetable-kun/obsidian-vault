@@ -896,7 +896,7 @@ graph TD
 
 | 类型 | 名称 | 链接 | 费用 |
 |---|---|---|---|
-| 视频 | B站 748 集 | https://www.bilibili.com/video/BV1xwVr6FEh4/ | 免费 |
+| 视频 | B站 AI Agent 教程（实测 94 分P） | https://www.bilibili.com/video/BV1xwVr6FEh4/ | 免费 |
 | 教程 | ai-agents-from-zero | https://github.com/didilili/ai-agents-from-zero | 免费 |
 | 文档 | LangGraph | https://langchain-ai.github.io/langgraph/ | 免费 |
 | 文档 | CrewAI | https://docs.crewai.com/ | 免费 |
@@ -1025,7 +1025,7 @@ graph TD
 > 先跑通再优化，先单 Agent 再多 Agent，先安全再开放。
 
 > [!note] 推荐资源
-> B站 748 集教程 + GitHub didilili/ai-agents-from-zero
+> B站 AI Agent 教程（实测 94 分P）+ GitHub didilili/ai-agents-from-zero
 
 ---
 
