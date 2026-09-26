@@ -11,7 +11,7 @@ aliases:
 cssclasses:
   - learning
 ---
-# [[Neovim-基本用法]]
+# [[neovim-基本用法]]
 
 > [!tip] 学习目标
 > 作为初级用户，从零掌握 Neovim 的核心操作、配置与插件生态，能够高效编辑文本并构建个人化的编辑工作流。
@@ -43,12 +43,16 @@ Neovim 的核心设计理念是**模式编辑**——不同模式下相同的按
 | **正常模式** | `Esc` | 导航、删除、复制、粘贴 | 默认模式 |
 | **插入模式** | `i`, `a`, `o` | 输入文本 | `Esc` |
 | **可视模式** | `v`, `V`, `Ctrl+v` | 选中文本 | `Esc` |
+| **替换模式** | `R` | ==持续覆盖输入==（单字符 `r` 的加强版） | `Esc` |
+| **选择模式** | `Ctrl+g` | 与可视模式配对，状态栏显示 `SELECT` | `Ctrl+g` |
 | **命令行模式** | `:` | 执行命令（保存、退出等） | `Enter` |
+| **搜索模式** | `/`, `?` | 正向/反向搜索 | `Enter` 或 `Esc` |
+| **终端模式** | `Ctrl+\`` 或 `:terminal` | 内嵌终端（跑测试、跑程序） | ==`Ctrl+\`` 再按 `Ctrl+n` 回正常模式== |
 
 > [!tip] 关键理解
 > 正常模式是 Neovim 的"默认状态"。大多数时间你应该处于正常模式，只在需要输入文本时才进入插入模式。这种设计让双手不离开主键盘区就能完成所有操作。
 
-**填空题（每章 4.2 道，答案见章节末尾）**
+**填空题（每章 4 道，答案见本节末尾）**
 
 1. Neovim 的默认模式是 ______ 模式，用于导航和编辑操作。
 2. 按 `i` 键进入 ______ 模式，可以输入文本。
@@ -198,7 +202,7 @@ Neovim 的核心设计理念是**模式编辑**——不同模式下相同的按
 
 ### 1.6 第一章综合练习
 
-**填空题（本章共 4.2 道，答案见下方）**
+**填空题（本章共 4 道，答案见下方）**
 
 1. Neovim 的默认模式是 ______ 模式。
 2. `:wq` 中 `w` 表示 ______，`q` 表示 ______。
@@ -218,11 +222,6 @@ Neovim 的核心设计理念是**模式编辑**——不同模式下相同的按
 > 2. **引号不匹配**：输入模式下输入引号可能产生转义字符，正常模式下用 `r` 替单字符，`cw` 修改单词
 > 3. **窗口混淆**：`:split` 和 `:vsplit` 易混淆，记住：`split` 是水平，`vsplit` 是垂直
 > 4. **保存遗忘**：频繁使用 `:q!` 导致丢失修改，养成 `:` + `wq` 的肌肉记忆
-
-> [!note] 本章视频推荐
-> - **Neovim 入门** (Bilibili): https://www.bilibili.com/video/BV1xwVr6FEh4/ - 全面覆盖 Neovim 基础
-> - **Linux 命令行基础** (Coursera): https://www.coursera.org/learn/linux-command-line - 系统化的命令学习
-> - **实战 Neovim 配置** (Udemy): https://www.udemy.com/course/neovim-configuration/ - 侧重实际配置实践
 
 ---
 
@@ -305,9 +304,13 @@ Neovim 的插件生态是其强大之处。推荐使用 `lazy.nvim` 作为插件
 **安装 lazy.nvim**：
 
 ```bash
-git clone --depth 1 https://github.com/folke/lazy.nvim.git \
-  ~/.local/share/nvim/site/pack/packer/start/lazy.nvim
+# ==官方安装方式==：克隆到 stdpath("data")/lazy（不要用 packer/start，那是 packer 的路径）
+git clone https://github.com/folke/lazy.nvim.git \
+  "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/lazy/lazy.nvim"
 ```
+
+> [!warning] 别抄错路径
+> 网上大量教程把 lazy.nvim clone 到 `~/.local/share/nvim/site/pack/*/start/`，那是 **packer** 的目录约定。用 lazy.nvim 就必须放在 `data/lazy/lazy.nvim`，否则下面 `lazypath` 找不到它，插件管理器不会加载。
 
 **基本配置**：
 
@@ -350,13 +353,16 @@ require("lazy").setup({
 
 **知识点详解**
 
-| 插件 | 功能 | 常用命令 |
-|---|---|---|
-| `nvim-tree` | 文件资源管理树 | `:NvimTreeToggle` |
-| `telescope` | 模糊查找器 | `:Telescope find_files` |
-| `which-key` | 快捷键提示 | 按 `leader` 后等待 |
-| `lsp-zero` | LSP 支持 | 自动补全、跳转定义 |
-| `nvim-cmp` | 自动补全引擎 | 输入时自动弹出 |
+| 插件 | 仓库所有者 | 功能 | 常用命令 |
+|---|---|---|---|
+| `nvim-tree` | nvim-tree | 文件资源管理树 | `:NvimTreeToggle` |
+| `telescope` | nvim-telescope | 模糊查找器 | `:Telescope find_files` |
+| `which-key` | folke | 快捷键提示 | 按 `leader` 后等待（==不是 `:WhichKey`==） |
+| `nvim-cmp` | hrsh7th | 补全引擎 | 输入时自动弹出 |
+| `conform` | stevearc | 代码格式化 | `:ConformInfo` |
+| `nvim-treesitter` | nvim-treesitter | 语法解析与增强高亮 | `:TSInstall` |
+| `mason` | mason-org | 语言服务器/工具安装器 | `:Mason` |
+| `lsp-zero` | VonHeikemen | LSP 一站式封装（==0.11+ 优先用内置 API==） | `:LspZeroSetup` |
 
 **填空题**
 
@@ -416,9 +422,56 @@ require("lazy").setup({ ... })
 
 ---
 
-### 2.6 第二章综合练习
+### 2.6 高效编辑进阶：寄存器、宏、文本对象与跳转
 
-**填空题（本章共 4.2 道，答案见下方）**
+**知识点详解**
+
+| 能力 | 快捷键 | 说明 |
+|---|---|---|
+| 复制到寄存器 | `"ayy` | 指定寄存器 `a`；不加前缀是「黑洞寄存器」不污染 `0` |
+| 粘贴寄存器 | `"ap` | 粘回寄存器 `a` |
+| 查看寄存器 | `:reg` / `:registers` | 看所有寄存器内容 |
+| 系统剪贴板 | `"+p` / `"*p` | 选中与复制区，依赖 Neovim 内置剪贴板支持 |
+| 录制宏 | `q a` … `q` | 以 `a` 录制，停止再按 `q` |
+| 执行宏 | `@a` | 播放一次 |
+| 重复执行 | `@@` / `100@a` | ==`@@` 重复上一次宏，最省按键== |
+| 文本对象 | `diw` / `ci"` / `yap` | ==`d`+`i`+`w`=删内层单词；`c`+`a`+`p`=改段落== |
+| 行内跳转 | `f{char}` / `t{char}` / `F` / `T` | 找字符；`;` 跳下一个，`,` 跳上一个 |
+| 屏幕行跳转 | `Ctrl+o` / `Ctrl+i` | 跳转列表后退/前进 |
+| 跳到行号 | `:{行号}`（如 `:42`） | 配合 `:set number` 更快 |
+
+> [!tip] 文本对象是 Vim 的杀手级设计
+> ==光标不必停在目标上==。`dip` 无论光标在段落哪个词上，都能删掉整个段落。常用组合：`diw`（内层词）、`daw`（一个词）、`di"`（引号内）、`ci(`（改括号内）、`yap`（复制段落）、`>ap`（缩进段落）。
+
+**宏的实战流程**（例：给 10 行每行末尾加分号）
+
+```vim
+qa          " 开始录制到寄存器 a
+A;          " 行尾插入分号
+j           " 下移一行
+q           " 停止录制
+10@a        " 播放 10 次
+@@          " 再手动多播放一次
+```
+
+**填空题**
+
+1. `"ayy` 的作用是把当前行复制到名为 ______ 的寄存器。
+2. 重复执行上一次宏的按键是 ______。
+3. `diw` 中 `d` 是动词、`i` 表示 ______（inner/outer）、`w` 表示单词。
+4. 宏录制中按 `q` 开始，再按 ______ 停止。
+
+**答案**：
+1. a
+2. `@@`
+3. inner（内层）
+4. `q`
+
+---
+
+### 2.7 第二章综合练习
+
+**填空题（本章共 4 道，答案见下方）**
 
 1. `/pattern` 中 `/` 表示 ______ 搜索。
 2. `Ctrl+v` 进入 ______ 可视模式。
@@ -435,14 +488,9 @@ require("lazy").setup({ ... })
 
 > [!tip] 常见陷阱
 > 1. **插件冲突**：安装过多插件可能导致 Neovim 启动变慢，建议使用懒加载，只在需要时加载
-> 2. **映射冲突**：新增键位可能覆盖现有快捷键，使用 `:WhichKey` 检测冲突
+> 2. **映射冲突**：新增键位可能覆盖已有快捷键，用 `:verbose nvim_keymap <lhs>` 查某个键被谁定义，`:checkhealth` 做整体体检（==`which-key` 并没有 `:WhichKey` 命令，它只做按键提示==）
 > 3. **配置错误启动**：语法错误会导致 Neovim 无法启动，始终保留备份 `init.lua.bak`
 > 4. **插件版本过旧**：插件频繁更新，可能与 Neovim 版本不兼容，定期检查更新日志
-
-> [!note] 本章视频推荐
-> - **Neovim 插件实战** (Bilibili): https://www.bilibili.com/video/BV1ff4y1X7Ng/ - 深入讲解插件使用
-> - **Lua 语言速成** (Coursera): https://www.coursera.org/learn/lua-programming - 快速掌握 Lua 基础
-> - **Neovim 配置管理** (Egghead): https://egghead.io/courses/neovim-configuration - 配置最佳实践
 
 ---
 
@@ -574,47 +622,71 @@ return M
 
 **知识点详解**
 
-LSP（Language Server Protocol）提供代码补全、跳转定义、查找引用等功能。
+LSP（Language Server Protocol）把「语言智能」标准化：编辑器只管 UI，语言服务器（Language Server）负责分析。==Neovim 0.10 起内置 LSP 客户端，0.11 起内置配置框架==。
 
-**使用 lsp-zero 快速配置**：
+> [!danger] 版本差异（最容易踩的坑）
+> - **Nvim 0.10 及更早**：用 `require('lspconfig')` + `lspconfig/server.setup({})`
+> - **Nvim 0.11+**：官方新增 `vim.lsp.config` / `vim.lsp.enable`，`nvim-lspconfig` 仓库已把框架「上移」到内核，`require'lspconfig'` ==不再是推荐路径==
+> - `lsp-zero.nvim` 这类封装插件若走旧 `lspconfig` 接口，在 0.11+ 上会报 `attempt to call field 'enable' (a nil value)`
+
+**方式一：内置 API（0.11+，推荐）**
 
 ```lua
-local lsp = require('lsp-zero')
-
-lsp.preset('recommended')
-
--- 安装语言服务器
-lsp.ensure_installed({
-  'lua_ls',
-  'pyright',
-  'ts_ls',
+-- lsp/lua_ls.lua（放在 runtimepath 的 lsp/ 目录下即可被自动读取）
+vim.lsp.config('lua_ls', {
+  cmd = { 'lua-language-server' },
+  filetypes = { 'lua' },
+  root_markers = { '.luarc.json', 'stylua.toml', '.git' },
 })
 
-lsp.setup()
+-- init.lua 里启用
+vim.lsp.enable('lua_ls')
+vim.lsp.enable({ 'pyright', 'ts_ls' })
 ```
 
-**常用 LSP 快捷键**：
-
-| 快捷键 | 功能 |
+| API | 作用 |
 |---|---|
-| `gd` | 跳转定义 |
-| `gr` | 查找引用 |
-| `K` | 显示文档 |
-| `<leader>rn` | 重命名 |
-| `<leader>ca` | 代码操作 |
+| `vim.lsp.config(name, cfg)` | 定义/覆盖某服务器的默认配置（也可写在 `lsp/<name>.lua`） |
+| `vim.lsp.enable(name)` | 启用并按 `filetypes` + `root_markers` 自动 attach |
+| `vim.lsp.start(cfg, opts)` | 手动启动一个客户端（不走自动 attach） |
+| `:lsp-enable` / `:lsp-stop` / `:lsp-restart` | 运行时开关与重启客户端 |
+| `:checkhealth vim.lsp` | ==诊断 LSP 配置的正确命令== |
+
+**方式二：lsp-zero（适合想少写样板代码的人）**
+
+```lua
+-- 仓库 VonHeikemen/lsp-zero.nvim（注意不是 WhoIsSethDaniel，那已 404）
+local lsp_zero = require('lsp-zero')
+lsp_zero.extend_lspconfig({ sign_text = true })
+lsp_zero.ensure_installed({ 'lua_ls', 'pyright' })
+lsp_zero.setup()
+```
+
+**常用 LSP 快捷键（均需自己映射）**
+
+| 快捷键 | 对应 API | 功能 |
+|---|---|---|
+| `gd` | `vim.lsp.buf.definition()` | 跳转定义 |
+| `gD` | `vim.lsp.buf.declaration()` | 跳转声明 |
+| `gr` | `vim.lsp.buf.references()` | 查找引用 |
+| `gi` | `vim.lsp.buf.implementation()` | 跳转实现 |
+| `K` | `vim.lsp.buf.hover()` | 悬浮文档 |
+| `<leader>rn` | `vim.lsp.buf.rename()` | 重命名符号 |
+| `<leader>ca` | `vim.lsp.buf.code_action()` | 代码操作 |
+| `<leader>d` | `vim.diagnostic.open_float()` | 诊断浮窗 |
 
 **填空题**
 
-1. LSP 的全称是 ______。
-2. `lsp-zero` 是一个 ______ 插件。
-3. `gd` 表示跳转到 ______。
-4. `gr` 表示查找 ______。
+1. Neovim 从 ______ 版本起内置 LSP 配置框架（`vim.lsp.config` / `vim.lsp.enable`）。
+2. `gd` 对应的 API 是 `vim.lsp.buf.______()`。
+3. 排查 LSP 是否 attach 成功的命令是 `:checkhealth ______`。
+4. 0.10 时代配置 LSP 的旧写法是 `require('______')`。
 
 **答案**：
-1. Language Server Protocol
-2. LSP 配置
-3. 定义
-4. 引用
+1. 0.11
+2. definition
+3. `vim.lsp`
+4. lspconfig
 
 ---
 
@@ -655,7 +727,7 @@ vim.g.loaded_netrw = 1
 
 ### 3.6 第三章综合练习
 
-**填空题（本章共 4.2 道，答案见下方）**
+**填空题（本章共 4 道，答案见下方）**
 
 1. `vim.g.mapleader = " "` 设置 ______ 键。
 2. `vim.keymap.set` 的第一个参数 `"n"` 表示 ______ 模式。
@@ -672,14 +744,9 @@ vim.g.loaded_netrw = 1
 
 > [!tip] 常见陷阱
 > 1. **Lua 语法错误**：单个引号与双引号混淆，table 语法错误（缺少逗号或方括号）会导致 Neovim 启动失败，使用 `:lua` 命令测试片段
-> 2. **LSP 连接超时**：语言服务器启动慢或网络不稳定，可通过 `lsp.configure({timeout_ms=5000})` 调整超时时间
+> 2. **LSP 迟迟不 attach**：多半是 `root_markers` 找不到工作区根目录，或语言服务器没装/不在 PATH。用 `:checkhealth vim.lsp` 看 `Enabled Configurations`，再用 `:LspInfo`（或 `:lsp-info`）看客户端状态，而不是去调某个并不存在的 `timeout_ms` 配置项
 > 3. **性能回归**：添加过多自动命令或插件会显著拖慢 Neovim 启动，使用 `:Lazy profile` 分析启动耗时
-> 4. **主题兼容性**：并非所有主题都与 `true color` 兼容，确保终端支持 `24-bit color`（`$TERM=xterm-24bit`）
-
-> [!note] 本章视频推荐
-> - **Neovim 高级配置** (Bilibili): https://www.bilibili.com/video/BV1xxfs1xEBlu/ - 系统编程与进程控制
-> - **Lua 编程实战** (Coursera): https://www.coursera.org/learn/lua-programming - 系统化的 Lua 学习
-> - **Neovim 性能调优** (Udemy): https://www.udemy.com/course/neovim-performance/ - 启动速度与资源使用优化
+> 4. **主题显示不对**：现代终端默认就是 24 位真彩色，==不需要去改 `$TERM` 为 `xterm-24bit`==（很多终端根本没有这个 TERM 值，改了反而可能引发异常）。用 `:checkhealth` 看 Neovim 侧识别结果，主题不对通常是 `termguicolors` 没开
 
 ---
 
@@ -696,15 +763,15 @@ vim.g.loaded_netrw = 1
 > - **备份** `init.lua`/`init.vim`，避免配置错误导致无法启动
 
 > [!note] 关联笔记
-> - `[[Bash-基础语法]]` - Bash 基础语法（配套学习）
-> - `[[Lua-学习路线]]` - Lua 语言学习（进阶配置必备）
+> - [[bash-基础语法]] - Shell 基础（`:!` 执行 shell 命令、管道、脚本配合）
+> - Lua 暂无独立笔记，用官方速查 [Lua in 15 minutes](https://learnxinyminutes.com/docs/lua/) 顶替
 
 > [!faq] 常见问题
 > **Q**：怎么退出 Neovim？
 > **A**：按 `Esc` 确保在正常模式，然后输入 `:q`（保存后）或 `:q!`（强制不保存）。
 >
 > **Q**：怎么安装插件？
-> **A**：使用插件管理器 `lazy.nvim`：`git clone` 对应仓库到 `~/.local/share/nvim/site/pack/packer/start/`，然后启动 Neovim 运行 `:Lazy install`。
+> **A**：用 `lazy.nvim`。把 lazy.nvim 自身 clone 到 `~/.local/share/nvim/lazy/lazy.nvim`，在 `init.lua` 里 `require('lazy').setup({...})` 声明插件，然后运行 `:Lazy sync` 安装。详见 [[#2.3 插件管理]]。
 >
 > **Q**：怎么恢复误删的内容？
 > **A**：按 `u` 撤销，或 `Ctrl+r` 重做。
@@ -718,12 +785,62 @@ vim.g.loaded_netrw = 1
 
 | 资源 | 链接 | 说明 |
 |---|---|---|
-| [[Neovim 高级配置]] | https://github.com/NvChad/NvChad | 完整 Neovim 发行版 |
-| [[Lua 学习路线]] | https://learnxinyminutes.com/docs/lua/ | Lua 语法速查 |
-| [[Vim 文字对象]] | https://vim.rtorr.com/ | 文字对象速查 |
-| [[Telescope 文档]] | https://github.com/nvim-telescope/telescope.nvim | 搜索插件文档 |
-| [[lazy.nvim 文档]] | https://github.com/folke/lazy.nvim | 插件管理器文档 |
+| **官方文档** | https://neovim.io/doc/user/ | ==一切以官方 help 为准==，`:h help` 可在编辑器内查 |
+| **LSP 官方文档** | https://neovim.io/doc/user/lsp/ | 0.11 的 `vim.lsp.config` / `vim.lsp.enable` 用法 |
+| **发行版新闻** | https://neovim.io/news/ | 各版本特性变更（迁移前必看） |
+| lazy.nvim | https://github.com/folke/lazy.nvim | 插件管理器（本篇采用） |
+| telescope.nvim | https://github.com/nvim-telescope/telescope.nvim | 模糊查找 |
+| nvim-tree.lua | https://github.com/nvim-tree/nvim-tree.lua | 文件树 |
+| which-key.nvim | https://github.com/folke/which-key.nvim | 键位提示 |
+| nvim-cmp | https://github.com/hrsh7th/nvim-cmp | 补全引擎 |
+| conform.nvim | https://github.com/stevearc/conform.nvim | 代码格式化 |
+| nvim-treesitter | https://github.com/nvim-treesitter/nvim-treesitter | 语法解析/高亮 |
+| nvim-lspconfig | https://github.com/neovim/nvim-lspconfig | 大量语言服务器预设 |
+| mason.nvim | https://github.com/mason-org/mason.nvim | 语言服务器/工具安装器 |
+| NvChad | https://github.com/NvChad/NvChad | 完整发行版（对照参考） |
+| Lua 速查 | https://learnxinyminutes.com/docs/lua/ | Lua 语法速查 |
+| Vim 速查表 | https://vim.rtorr.com/ | 键位/文字对象速查 |
+
+> [!note] 链接说明
+> 本篇原有的 3 组「视频推荐」（B 站 / Coursera / Udemy / Egghead）**已全部删除**：实测 `BV1xwVr6FEh4` 是 AI Agent 教程（94 个分P）、`BV1ff4y1X7Ng` 是一首音乐视频、`BV1xxfs1xEBlu` 接口返回 -400（不存在），两个 Coursera 路径返回 404。上表链接均于 2026-09-25 逐条 curl 核验 200。
 
 ---
 
-*由 [[Hermes Agent]] 创建于 2026-09-09 · 更新于 2026-09-17 · 状态：进行中*
+## ⚡ 速查表
+
+| 场景 | 命令 |
+|---|---|
+| 随时回到正常模式 | `Esc`（卡住了就多按几下） |
+| 保存并退出 | `:wq` / 正常模式 `ZZ` |
+| 强制不保存退出 | `:q!` / `ZQ` |
+| 打开行号 | `:set number` / `:set nonumber` |
+| 跳到第 N 行 | `:42` + `Enter` |
+| 查某个键被谁占用 | `:verbose nvim_keymap <leader>x` |
+| 健康体检 | `:checkhealth` / `:checkhealth vim.lsp` |
+| 统计启动耗时 | `nvim --startuptime /tmp/t.log +q` |
+| 列出所有映射 | `:nmap` / `:nnoremap` |
+| 宏：录 / 播 / 重复 | `qa` … `q` / `@a` / `@@` |
+| 复制到指定寄存器 | `"ayy` → `"ap` |
+| 换行不缩进 | `:set noautoindent` |
+| 查找插件配置默认值 | `:Lazy profile`、`:checkhealth` |
+
+## ❓ 常见问题
+
+> [!faq]- Q：`<leader>` 到底按什么？改了之后配置不生效？
+> A：==`vim.g.mapleader` 必须在所有映射定义之前设置==，否则映射仍绑到默认的 `\`。而且 `maplocalleader` 可以按缓冲区单独设。排查：`:verbose nvim_keymap` 看实际绑定到哪个前缀。
+
+> [!faq]- Q：装完 lazy.nvim 提示「不是有效插件」？
+> A：八成是路径错了。lazy.nvim 必须在 `stdpath("data")/lazy/lazy.nvim`，不是 `pack/*/start/`。确认 `init.lua` 里 `lazypath` 与 clone 位置一致，然后 `:Lazy sync`。
+
+> [!faq]- Q：配置改坏了，Neovim 起不来怎么办？
+> A：==用 `-u NONE` 启动==：`nvim -u NONE`，此时不加载任何配置；改完再正常启动。也可用 `nvim --clean`（0.9+）走隔离模式。
+
+> [!faq]- Q：启动很慢，怎么定位是谁拖慢的？
+> A：`nvim --startuptime /tmp/startup.log +q`，然后 `sort -k2 /tmp/startup.log | tail -20` 找最慢项；再用 `:Lazy profile` 看插件加载耗时。先查 `init.lua` 里有没有写文件、装插件、起 LSP 这类同步阻塞操作。
+
+> [!faq]- Q：`conform` 格式化和 LSP 自带格式化冲突吗？
+> A：会。两者都绑 `K`/`<leader>f` 一类按键时行为取决于调用顺序。约定俗成的做法是==统一交给 `conform`，在 LSP 的 `on_attach` 里禁用 LSP 的 `textDocument/formatting`==，避免两套格式化器互相打架。
+
+---
+
+*由 [[Hermes Agent]] 创建于 2026-09-09 · 更新于 2026-09-25 · 状态：进行中*
