@@ -11,7 +11,7 @@ aliases:
 cssclasses:
   - learning
 ---
-# [[Bash-基础语法]]
+# [[bash-基础语法]]
 
 > [!tip] 学习目标
 > 作为有 Shell 使用经验的开发者，系统掌握 Bash 的核心语法与高级特性，能够编写健壮的自动化脚本，并具备阅读他人脚本的能力。
@@ -741,10 +741,10 @@ shellcheck -S warning deploy.sh && bash -n deploy.sh && ./deploy.sh --dry-run
 
 | 资源 | 链接 | 说明 |
 |---|---|---|
-| [[Bash 高级脚本编程]] | https://www.tldp.org/LDP/abs/html/ | 完整在线教程 |
-| [[Shell 调试技巧]] | https://wiki.bash-hackers.org/scripting/debugging | 调试技巧 |
-| [[Real World Scripting]] | https://www.shellscript.sh/ | 实战指南 |
-| [[Google Shell 编程风格指南]] | https://google.github.io/styleguide/shellguide.html | 代码风格 |
+| Bash 高级脚本编程 | https://www.tldp.org/LDP/abs/html/ | 完整在线教程 |
+| Shell 调试技巧 | https://wiki.bash-hackers.org/scripting/debugging | 调试技巧 |
+| Real World Scripting | https://www.shellscript.sh/ | 实战指南 |
+| Google Shell 编程风格指南 | https://google.github.io/styleguide/shellguide.html | 代码风格 |
 
 ---
 
@@ -768,4 +768,4 @@ shellcheck -S warning deploy.sh && bash -n deploy.sh && ./deploy.sh --dry-run
 
 ---
 
-*由 [[Hermes Agent]] 创建于 2026-09-09 · 更新于 2026-09-25 · 状态：进行中*
+*由 Hermes Agent 创建于 2026-09-09 · 更新于 2026-09-25 · 状态：进行中*
