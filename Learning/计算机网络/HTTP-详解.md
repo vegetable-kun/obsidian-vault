@@ -1,12 +1,12 @@
 ---
+
 title: HTTP-详解
 date: 2026-09-17
-tags:
-  - HTTP
-  - learning
-  - 应用层
 cssclasses:
   - learning
+tags:
+  - 领域-计算机网络
+
 ---
 # [[HTTP-详解]]
 

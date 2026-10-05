@@ -1,8 +1,10 @@
 ---
 created: {{date}}
-tags: []
 aliases: []
 source: 
+tags:
+  - 领域-模板
+
 ---
 
 # {{title}}

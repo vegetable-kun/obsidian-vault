@@ -1,15 +1,15 @@
 ---
+
 title: Neovim 基本用法
 date: 2026-09-09
-tags:
-  - neovim
-  - learning
-  - vim
 aliases:
   - Neovim Basics
   - Vim 基础
 cssclasses:
   - learning
+tags:
+  - 领域-工具链
+
 ---
 # [[neovim-基本用法]]
 

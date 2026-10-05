@@ -1,18 +1,17 @@
 ---
+
 title: Agent-架构模式
 date: 2026-09-25
-tags:
-  - LLM
-  - learning
-  - AI
-  - Agent
-  - 架构设计
 aliases:
   - Agent 架构模式
   - Agent 架构
   - Agent Patterns
 cssclasses:
   - learning
+tags:
+  - 领域-AI-Agent
+  - 阶段4-Agent工程
+
 ---
 
 # [[Agent-架构模式]]
@@ -986,54 +985,17 @@ graph TD
 
 ## 🔗 关联笔记
 
-- [[LLM-基础]] —— 上下文窗口、KV-Cache、安全铁律的前置
-- [[Prompt-Engineering]] —— 五槽位结构、思维链、结构化输出，本篇 ACI 的提示词基础
-- [[RAG-系统设计]] —— 检索型子系统的实现，与本篇「广度优先并行检索」呼应
-- [[RAG-评估]] —— 检索级评估方法，本篇轨迹级评估的对齐对象
-- [[API-调用与模型服务]] —— 把本篇的模式落到具体接口上
-- [[Agent-框架]] —— 规划中：本篇只讲模式与原理，框架 API 在这里
-- [[工程化与部署]] —— 护栏、预算、评估落地为线上指标与可观测性
-- [[业务场景实战]] —— 多 Agent 编排的完整业务案例
-- [[AI-Agent-学习路线]] —— 本簇在整体路线中的位置
+> [!info] 阅读方式
+> - **上游**（先学）：[[LLM-基础]]、[[Prompt-Engineering]]、[[API-调用与模型服务]]
+> - **下游**（后学）：[[Agent-框架]]、[[MCP-协议详解]]、[[业务场景实战]]
+> - **横向**（同层）：无
 
-> [!info] 规划中的关联笔记
-> 本篇全部关联笔记均已存在于库内，无断链。
+**上游**
+- [[LLM-基础]] —— — 上下文窗口、KV-Cache、安全铁律的前置
+- [[Prompt-Engineering]] —— — 五槽位结构、思维链、结构化输出，本篇 ACI 的提示词基础
+- [[API-调用与模型服务]] —— — 把本篇的模式落到具体接口上
 
----
-
-> [!note] 权威资料（链接均于 2026-09-25 逐条核验 HTTP 200，arXiv 论文标题经 citation_title meta 核验）
-> **官方与工程**
-> - [Building Effective Agents（Anthropic）](https://www.anthropic.com/engineering/building-effective-agents) —— Workflow/Agent 定义、五种工作流模式、ACI 原则、停止条件
-> - [Writing effective tools for agents — with agents（Anthropic）](https://www.anthropic.com/engineering/writing-tools-for-agents) —— 工具五条原则、token 效率、评估指标
-> - [Effective context engineering for AI agents（Anthropic）](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) —— 注意力预算、上下文腐化、压缩/笔记/子 Agent
-> - [How we built our multi-agent research system（Anthropic）](https://www.anthropic.com/engineering/multi-agent-research-system) —— 多 Agent 的正方证据
-> - [Don't Build Multi-Agents（Cognition）](https://cognition.ai/blog/dont-build-multi-agents) —— 多 Agent 的反方证据与两条原则
-> - [Context Rot（Chroma Research）](https://research.trychroma.com/context-rot) —— 上下文腐化研究
->
-> **原始论文**
-> - [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629)
-> - [Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/abs/2303.11366)
-> - [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601)
-> - [Language Agent Tree Search Unifies Reasoning Acting and Planning in Language Models](https://arxiv.org/abs/2310.04406) —— LATS
-> - [Measuring and Narrowing the Compositionality Gap in Language Models](https://arxiv.org/abs/2210.03350) —— Self-Ask
-> - [Plan-and-Solve Prompting: Improving Zero-Shot Chain-of-Thought Reasoning by Large Language Models](https://arxiv.org/abs/2305.04091) —— Plan-and-Execute 的学术形态
-> - [Improving Factuality and Reasoning in Language Models through Multiagent Debate](https://arxiv.org/abs/2305.14325) —— 辩论模式
-> - [Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442) —— 情景/语义记忆的经典来源
-> - [MemGPT: Towards LLMs as Operating Systems](https://arxiv.org/abs/2310.08560) —— 分层记忆管理
-> - [Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) —— MAST 失败分类法
->
-> **评估**
-> - [AgentBench: Evaluating LLMs as Agents](https://arxiv.org/abs/2308.03688)
-> - [τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains](https://arxiv.org/abs/2406.12045)
->
-> **框架（仅作机制参考，不作为架构建议）**
-> - [openai/swarm](https://github.com/openai/swarm) —— Handoff 概念来源，仓库自述为实验性
-> - [microsoft/autogen](https://github.com/microsoft/autogen) · [TaskWeaver](https://github.com/microsoft/TaskWeaver) · [crewAI](https://github.com/joaomdmoura/crewAI) · [langgraph](https://github.com/langchain-ai/langgraph) —— 多 Agent 编排实现
-> - [Model Context Protocol](https://modelcontextprotocol.io/introduction) —— 工具接入的开放协议
-
-> [!note] 关于来源的说明
-> 本篇所有 arXiv 编号均通过 `citation_title` meta 核验标题与正文说法一致——初稿中 Self-Ask 与 Plan-and-Execute 的编号是错的（前者应为 2210.03350，后者应为 2305.04091），已修正。`anthropic.com/research/building-agents` 实测 404 未写入。==huggingface.co 与 openai.com 在本机网络下不可稳定核验（000/403），本篇未使用==。
-
----
-
-*由 Hermes Agent 创建于 2026-09-25 · 状态：进行中*
+**下游**
+- [[Agent-框架]] —— — 规划中：本篇只讲模式与原理，框架 API 在这里
+- [[MCP-协议详解]] —— 本篇是 MCP-协议详解 的前置
+- [[业务场景实战]] —— — 多 Agent 编排的完整业务案例

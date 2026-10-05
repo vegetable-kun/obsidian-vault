@@ -1,16 +1,15 @@
 ---
+
 title: DNS-详解
 date: 2026-09-25
-tags:
-  - DNS
-  - learning
-  - 网络协议
-  - 安全
 aliases:
   - DNS 详解
   - 域名系统
 cssclasses:
   - learning
+tags:
+  - 领域-计算机网络
+
 ---
 # [[DNS-详解]]
 

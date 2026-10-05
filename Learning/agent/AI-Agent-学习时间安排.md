@@ -1,11 +1,8 @@
 ---
+
 created: 2026-09-09
 updated: 2026-09-25
 type: learning
-tags:
-  - learning/roadmap
-  - ai/agent
-  - career
 aliases:
   - AI Agent 学习计划
   - Agent 开发时间表
@@ -22,6 +19,9 @@ target_date: 2026-12-27
 total_weeks: 16
 hours_per_week: 15-20
 roadmap: "[[AI-Agent-学习路线]]"
+tags:
+  - 领域-AI-Agent
+
 ---
 
 # AI Agent 从零学习路线 + 时间安排

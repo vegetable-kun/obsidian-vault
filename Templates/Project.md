@@ -2,9 +2,11 @@
 created: {{date}}
 type: project
 status: active
-tags: [project]
 aliases: []
 start_date: {{date}}
+tags:
+  - 领域-模板
+
 ---
 
 # {{title}} 项目

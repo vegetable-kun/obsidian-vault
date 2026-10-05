@@ -1,15 +1,15 @@
 ---
+
 title: Bash 基础语法
 date: 2026-09-09
-tags:
-  - bash
-  - learning
-  - shell
 aliases:
   - Bash Syntax
   - Shell 基础
 cssclasses:
   - learning
+tags:
+  - 领域-工具链
+
 ---
 # [[bash-基础语法]]
 

@@ -2,12 +2,13 @@
 created: {{date}}
 type: learning
 status: in-progress
-tags:
-  - learning
 aliases: []
 cssclasses:
   - learning
 source:
+tags:
+  - 领域-模板
+
 ---
 
 # {{title}} 学习笔记

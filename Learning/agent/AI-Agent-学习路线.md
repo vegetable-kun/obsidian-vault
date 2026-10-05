@@ -1,11 +1,8 @@
 ---
+
 created: 2026-09-08
 updated: 2026-09-25
 type: learning
-tags:
-  - AI/Agent
-  - learning/roadmap
-  - project/active
 aliases:
   - AI Agent 学习路径
   - Agent 开发学习
@@ -18,6 +15,9 @@ source:
 status: in-progress
 start_date: 2026-09-08
 target_date: 2026-12-31
+tags:
+  - 领域-AI-Agent
+
 ---
 
 # [[AI-Agent-学习路线]]

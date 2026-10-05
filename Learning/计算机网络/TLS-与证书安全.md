@@ -1,13 +1,12 @@
 ---
+
 title: TLS-与证书安全
 date: 2026-09-17
-tags:
-  - TLS
-  - HTTPS
-  - 网络安全
-  - learning
 cssclasses:
   - learning
+tags:
+  - 领域-计算机网络
+
 ---
 # [[TLS-与证书安全]]
 

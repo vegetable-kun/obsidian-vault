@@ -1,18 +1,17 @@
 ---
+
 title: API-调用与模型服务
 date: 2026-09-25
-tags:
-  - LLM
-  - learning
-  - AI
-  - 工程实践
-  - API
 aliases:
   - LLM API 调用
   - 模型服务接入
   - 大模型 API 工程
 cssclasses:
   - learning
+tags:
+  - 领域-AI-Agent
+  - 阶段5-部署与业务
+
 ---
 
 # [[API-调用与模型服务]]
@@ -1229,17 +1228,19 @@ def call():
 
 ## 🔗 关联笔记
 
-- [[LLM-基础]] - 本篇的原理上游（Prefill/Decode、KV-Cache、PagedAttention、安全铁律）
-- [[Prompt-Engineering]] - 提示词与结构化输出的实践下游
-- [[Agent-架构模式]] - 把本篇的工具调用循环封装成 ReAct / Workflow
-- [[RAG-系统设计]] - 检索结果进 prompt 时的缓存友好性设计
-- [[Embedding-与向量检索]] - 另一类模型 API（embeddings）的调用差异
-- [[MCP-协议详解]] - 工具接入的标准化替代方案
-- [[大模型微调]] - 自托管与量化的上游能力
-- [[AI-Agent-学习路线]] - 本簇在整体路线中的位置（W2 · 10h）
-- [[HTTP-详解]] - SSE 依赖的分块传输与长连接
-- [[TCP-深入]] - keep-alive 与超时的心跳原理
+> [!info] 阅读方式
+> - **上游**（先学）：[[LLM-基础]]
+> - **下游**（后学）：[[Agent-架构模式]]、[[大模型微调]]、[[工程化与部署]]
+> - **横向**（同层）：[[Prompt-Engineering]]、[[Embedding-与向量检索]]
 
----
+**上游**
+- [[LLM-基础]] —— 本篇的原理上游（Prefill/Decode、KV-Cache、PagedAttention、安全铁律）
 
-*由 Hermes Agent 创建于 2026-09-25 · 状态：进行中*
+**下游**
+- [[Agent-架构模式]] —— 把本篇的工具调用循环封装成 ReAct / Workflow
+- [[大模型微调]] —— 自托管与量化的上游能力
+- [[工程化与部署]] —— 本篇是 工程化与部署 的前置
+
+**横向**
+- [[Prompt-Engineering]] —— 提示词与结构化输出的实践下游
+- [[Embedding-与向量检索]] —— 另一类模型 API（embeddings）的调用差异

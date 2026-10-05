@@ -1,18 +1,17 @@
 ---
+
 title: Embedding 与向量检索
 date: 2026-09-25
-tags:
-  - AI
-  - learning
-  - embedding
-  - 向量检索
-  - 检索优化
 aliases:
   - Embedding 与向量检索
   - Embedding-与向量检索
   - 向量表示与检索
 cssclasses:
   - learning
+tags:
+  - 领域-AI-Agent
+  - 阶段3-检索与RAG
+
 ---
 
 # [[Embedding-与向量检索]]
@@ -912,15 +911,20 @@ print(float(direct @ retrieved_v))   # retrieved_v = 从库里查回的该文本
 
 ## 🔗 关联笔记
 
-- [[向量数据库]] — 下游：ANN 索引原理（HNSW / IVF）、七款向量库选型、标量过滤、内存估算与量化
-- [[LLM-基础]] — 上游：Transformer 表示学习、token 嵌入与上下文表示的区别
-- [[RAG-系统设计]] — 下游（规划中）：把本篇的检索能力接进生成链路
-- [[API-调用与模型服务]] — 旁支：调用闭源 Embedding API 的重试、批量与成本控制
-- [[AI-Agent-学习路线]] — 本簇在整体路线中的位置
+> [!info] 阅读方式
+> - **上游**（先学）：[[LLM-基础]]
+> - **下游**（后学）：[[向量数据库]]、[[RAG-系统设计]]
+> - **横向**（同层）：[[大模型微调]]、[[API-调用与模型服务]]、[[AI-Agent-学习路线]]、[[AI-Agent-学习时间安排]]
 
-> [!note] 关于本篇链接的说明
-> 本文所有外链均于 **2026-09-25 逐条 `curl` 核验 HTTP 200**；arXiv 引用另用 `citation_title` meta 核验了标题与论点一致。**未写入**的来源及原因：`openai.com` / `platform.openai.com` / `developers.openai.com` / `help.openai.com` 对本机全部返回 **403**，OpenAI 的模型规格改用可核验的[微软官方文档](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/models)并**明确标注了数值来源与核验日期**；`huggingface.co` 全站返回 **000**，`bge-m3` 模型卡改用 **ModelScope 官方镜像**与 **NVIDIA NIM 官方文档**（内容一致，含 1024 维 / 8192 token / 100+ 语种），MTEB 榜单页改用 [MTEB 官方仓库](https://github.com/embeddings-benchmark/mteb)；`sbert.net` 多个子路径 404，只保留已核验的 `quickstart` / 示例 / 模型参考页；`openreview.net` 返回浏览器校验页（200 但内容是挑战页），故不引用。**未写入任何价格与无公开实验支撑的跑分** —— 这类数据按月变化，须以你查询当天的官方页面为准。
+**上游**
+- [[LLM-基础]] —— 上游：Transformer 表示学习、token 嵌入与上下文表示的区别
 
----
+**下游**
+- [[向量数据库]] —— 下游：ANN 索引原理（HNSW / IVF）、七款向量库选型、标量过滤、内存估算与量化
+- [[RAG-系统设计]] —— 下游（规划中）：把本篇的检索能力接进生成链路
 
-*由 Hermes Agent 创建于 2026-09-25 · 状态：进行中*
+**横向**
+- [[大模型微调]] —— LoRA 加载参数的上游
+- [[API-调用与模型服务]] —— 旁支：调用闭源 Embedding API 的重试、批量与成本控制
+- [[AI-Agent-学习路线]] —— 本簇在整体路线中的位置
+- [[AI-Agent-学习时间安排]] —— 16 周计划中的排期
