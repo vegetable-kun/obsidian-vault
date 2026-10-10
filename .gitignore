@@ -1,6 +1,8 @@
 # Obsidian
 .obsidian/workspace*
 .obsidian/cache
+.obsidian/appearance.json
+.obsidian/graph.json
 
 # OS
 .DS_Store
