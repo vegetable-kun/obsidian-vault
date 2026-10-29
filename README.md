@@ -24,9 +24,7 @@ ObsidianVault/
 2. 或 git clone 到本地，用 Obsidian 打开
 
 ```
-
 git clone https://github.com/vegetable-kun/obsidian-vault
 
 obsidian ./obsidian-vault/
-
 ```
