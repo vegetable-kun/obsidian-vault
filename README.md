@@ -22,3 +22,11 @@ ObsidianVault/
 
 1. 将此文件夹作为 Obsidian vault 打开
 2. 或 git clone 到本地，用 Obsidian 打开
+
+```
+
+git clone https://github.com/vegetable-kun/obsidian-vault
+
+obsidian ./obsidian-vault/
+
+```
