@@ -9,7 +9,7 @@ ObsidianVault/
 ├── Projects/    # 项目笔记
 ├── Learning/    # 学习笔记
 ├── Template/    # Agent的笔记编写参照模板
-├── Memory/      # 软连接Hermes的记忆结合（含 MEMORY.md / USER.md 符号链接）
+├── Memory/      # 软链接.hermes的记忆结合（含 MEMORY.md / USER.md 符号链接）
 ```
 
 ## 与 Hermes 的集成
