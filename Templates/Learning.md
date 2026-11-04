@@ -106,4 +106,4 @@ tags:
 ---
 
 > [!note] 写作规范
-> 完整的 Obsidian 语法规范与质量检查清单见 [[Obsidian-规范速查]]。
+> 完整的 Obsidian 语法规范与质量检查清单见 [[Obsidian-Reference]]。
