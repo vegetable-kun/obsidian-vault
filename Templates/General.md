@@ -1,9 +1,11 @@
 ---
-created: {{date}}
+created: 2026-01-01
+type: general
+status: active
 aliases: []
-source: 
 tags:
   - 领域-模板
+  - 阶段0-模板
 
 ---
 
@@ -13,16 +15,36 @@ tags:
 
 ## 关键要点
 
-## 相关链接
-- [[]]
+## 常见陷阱
 
-## 总结
+- [ ] 
 
-## 关联笔记
+## 速查表
+
+| 项 | 值 | 备注 |
+|---|---|---|
+|  |  |  |
+
+## ❓ 常见问题
+
+> [!faq]- Q：？
+> A：
+
+## 📦 资源链接
+
+| 资源 | 链接 | 说明 |
+|---|---|---|
+|  |  |  |
+
+## 🔗 关联笔记
+
 - [[]]
 
 ---
-*由 Hermes Agent 创建于 {{date}}*
+
+*由 Hermes Agent 创建于 2026-01-01*
+
+---
 
 > [!note] 写作规范
-> 本模板用于通用笔记。涉及结构化学习内容时，请改用 [[Templates/Learning|Learning 模板]]，其中包含完整的 **Obsidian 规范速查**（properties / wikilinks / embeds / callouts / 标签 / 注释 / 公式 / Mermaid）与 **笔记质量检查清单**。
+> 完整的 Obsidian 语法规范与质量检查清单见 [[Templates/Obsidian-规范速查|Obsidian-规范速查]]。
